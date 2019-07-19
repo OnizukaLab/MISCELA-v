@@ -1,0 +1,12 @@
+# directory
+db/**/*.csv
+result/**/*.csv
+pickle/**/*.pickle
+# file
+.idea
+.git
+.python-version
+
+/venv/
+/__pycache__/
+__pycache__
