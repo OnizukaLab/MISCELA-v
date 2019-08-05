@@ -4,19 +4,51 @@
     <meta charset="utf-8">
     <meta name="descrtiption", content="google mapデモ">
     <script src="http://code.jquery.com/jquery-2.0.0.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <title>時空間データマイニングデモ</title>
   </head>
   <body>
-  <div id="map" style="width: 1650px; height: 900px;"></div>
-  <input type="text" id="dataset">
-  <input type="text" id="maxAtt">
-  <input type="text" id="minSup">
-  <input type="text" id="evoRate">
-  <input type="text" id="distance">
-  <button id="go">GO</button>
-  <script type="text/javascript" src="src/show_map.js"></script>
-  <script type="text/javascript" src="src/sensor_info.js"></script>
-  <script async defer
-    src="https://maps.googleapis.com/maps/api/js?callback=initMap"></script>
-  <div id="jsonp"></div>
+    <div id="map"></div>
+    <nav class="control-panel" id="control-panel">
+      <section class="parameters">
+        <div class="param">
+          <h3><span>地域</span></h3>
+          <select id="dataset">
+            <option value="santander">Santander</option>
+            <option value="china6">China-6</option>
+            <option value="china32">China-32</option>
+          </select>
+        </div>
+        <div class="param">
+          <h3><span>属性最大数</span>MaxAtt</h3>
+          <input type="text" id="maxAtt" value="2">
+        </div>
+        <div class="param">
+          <h3><span>最小共起数</span>minSup</h3>
+          <input type="text" id="minSup" value="1000">
+        </div>
+        <div class="param">
+          <h3><span>変化率</span>evoRate</h3>
+          <input type="text" id="evoRate" value="0.5">
+        </div>
+        <div class="param">
+          <h3><span>距離</span>distance</h3>
+          <input type="text" id="distance" value="0.1">
+        </div>
+      </section>
+      <button id="go" class="update-button">更新</button>
+      <section class="graph">グラフ</section>
+      <section class="fold-button">
+        <button id="fold-button"></button>
+      </section>
+      <div class="widget-toggle-button" id="widget-toggle-button"></div>
+    </nav>
+    <script type="text/javascript" src="src/show_map.js"></script>
+    <script type="text/javascript" src="src/sensor_info.js"></script>
+    <script type="text/javascript" src="src/script.js"></script>
+    <script async defer
+      src="https://maps.googleapis.com/maps/api/js?callback=initMap"></script>
   </body>
 </html>
+
