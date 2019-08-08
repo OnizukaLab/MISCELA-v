@@ -51,7 +51,7 @@ function put_markers(data, icon_prop, label_prop){
 	var group_counter = 0
 	var latlng = new google.maps.LatLng(35.66666, 139.766766)
 	var mapOptions = {
-		zoom: 6,
+		zoom: 18,
 		center: latlng
 	}
 	$("#map").empty()
@@ -66,7 +66,7 @@ function put_markers(data, icon_prop, label_prop){
 
 			var color_code = get_color_code(group_counter)
 			icon_prop.fillColor = color_code
-			icon_prop.strokeColor = color_code
+			// icon_prop.strokeColor = color_code
 			label_prop.text = sensor["attribute"][0]
 
 			marker = new google.maps.Marker({
@@ -90,11 +90,11 @@ $("#go").click(function(){
 	  var icon_prop = {
 	    fillColor: "#FF0000",
 	    fillOpacity: 1.0,
-	    path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-	    scale: 8,
-	    strokeColor: "#FF0000",
+	    path: google.maps.SymbolPath.CIRCLE,
+	    scale: 20,
+	    strokeColor: "#000000",
 	    strokeWeight: 1.0,
-	    labelOrigin: new google.maps.Point(0, -2.2)
+	    labelOrigin: new google.maps.Point(0, 0)
 	  }
 	  var label_prop = {
 	    text: 'A',
@@ -109,6 +109,9 @@ $("#go").click(function(){
 	var evoRate = $("#evoRate").val()
 	var distance = $("#distance").val()
 	var url = `http://10.0.16.7:8000/api/miscela/${dataset}/${maxAtt}/${minSup}/${evoRate}/${distance}`
+	
+	// `http://10.0.16.7:8000/api/miscela/santander/2/1000/0.5/0.1`
+
 	console.log(url)
 
 	$.ajax({
