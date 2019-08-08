@@ -1,4 +1,4 @@
-var label_santander = {"temperature": "T", "light": "L", "noise": "N", "traffic_volume": "Tv", "humidity": "H"}
+var label_santander = {"temperature": "T", "light": "L", "noise": "N", "traffic": "Tv", "humidity": "H"}
 var label_china = {"PM2.5": "PM2.5",
 				   "PM10": "PM10",
 				   "SO2": "SO2",
@@ -11,7 +11,7 @@ var label_china = {"PM2.5": "PM2.5",
 				   "temperature": "T",
 				   "air-pressure": "A",
 				   "humidity": "H",
-				   "wind_speed": "W"}
+				   "wind": "W"}
 
 function id_to_HSV(n){
 	var rotate = ((n / 6) % 6) * 10
@@ -107,7 +107,7 @@ function put_markers(data, icon_prop, label_prop){
 			meanLat += sensor["lat"]
 			var P = [sensor["log"], sensor["lat"]]
 			var attr = ""
-			console.log(json_data["dataset"] === "santander")
+			console.log(sensor["attribute"])
 			if (json_data["dataset"] === "santander"){
 				attr = label_santander[sensor["attribute"]]
 			}
