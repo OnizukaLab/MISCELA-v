@@ -73,12 +73,14 @@ function num_duplication(p, points){
 }
 
 function is_cached(dataset, maxAtt, minSup, evoRate, distance){
-	var url = `http://10.0.16.7:8000/api/is_exist/${dataset}/${maxAtt}/${minSup}/${evoRate}/${distance}`
-	var is_exist = false
-	$.get(url, function(data){
-		is_exist = data
-	})
-	return is_exist
+	var url_e = `http://10.0.16.7:8000/api/is_exists/${dataset}/${maxAtt}/${minSup}/${evoRate}/${distance}`
+	var is_exist = $.ajax({
+		type: "GET",
+		url: url_e,
+		async: false
+	}).responseText
+
+	return is_exist.toLowerCase() === "true"
 }
 
 
@@ -164,7 +166,7 @@ $("#go").click(function(){
 	    fontSize: '12px'
 	  }
 
-	console.log("send request")
+
 	var dataset = $("#dataset").val()
 	var maxAtt = $("#maxAtt").val()
 	var minSup = $("#minSup").val()
@@ -175,6 +177,7 @@ $("#go").click(function(){
 	console.log(url)
 
 	var is_exist = is_cached(dataset, maxAtt, minSup, evoRate, distance)
+	console.log(is_exist)
 
 
 	if (!is_exist){
@@ -182,6 +185,7 @@ $("#go").click(function(){
 		if (!is_ok)
 			return
 	}
+	console.log("send request")
 	$.ajax({
 		url: url,
 		type: "GET",
