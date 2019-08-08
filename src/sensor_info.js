@@ -1,3 +1,18 @@
+var label_santander = {"temperature": "T", "light": "L", "noise": "N", "traffic_volume": "Tv", "humidity": "H"}
+var label_china = {"PM2.5": "PM2.5",
+				   "PM10": "PM10",
+				   "SO2": "SO2",
+				   "NO2": "NO2",
+				   "CO": "CO",
+				   "O3": "O3",
+				   "sunny-persent": "%S",
+				   "rainy-persent": "%R",
+				   "rain": "R",
+				   "temperature": "T",
+				   "air-pressure": "A",
+				   "humidity": "H",
+				   "wind_speed": "W"}
+
 function id_to_HSV(n){
 	var rotate = ((n / 6) % 6) * 10
 	var H = rotate + (n % 6)*60
@@ -45,46 +60,85 @@ function get_color_code(i){
 	return RGB_to_HEX(HSV_to_RGB(id_to_HSV(i)))
 }
 
+function num_duplication(p, points){
+	var ret = 0
+	var dis = 0
+	for (var q of points){
+		dis = (q[0] - p[0]) ** 2 + (q[1] - p[1]) ** 2
+		if (dis == 0){
+			ret += 1
+		}
+	}
+	return ret
+}
+
+
+
 function put_markers(data, icon_prop, label_prop){
 	var json_data = JSON.parse(data)
 	var sensor_counter = 0
 	var group_counter = 0
 	var latlng = new google.maps.LatLng(35.66666, 139.766766)
 	var mapOptions = {
-		zoom: 18,
+		zoom: 15,
 		center: latlng
 	}
 	$("#map").empty()
 	var gmap = new google.maps.Map($("#map")[0], mapOptions)
 	var meanLng = 0
 	var meanLat = 0
+	var points_attr = {}
+	var points_group = {}
 	for (var group of json_data["groups"]){
 		for (var sensor of group){
+			icon_prop.labelOrigin = new google.maps.Point(0, 0)
 			latlng = new google.maps.LatLng(sensor["log"], sensor["lat"])
 			meanLng += sensor["log"]
 			meanLat += sensor["lat"]
+			var P = [sensor["log"], sensor["lat"]]
+			var attr = ""
+			console.log(json_data["dataset"] === "santander")
+			if (json_data["dataset"] === "santander"){
+				attr = label_santander[sensor["attribute"]]
+			}
+			else{
+				attr = label_china[sensor["attribute"]]
+			}
 
-			var color_code = get_color_code(group_counter)
-			icon_prop.fillColor = color_code
-			// icon_prop.strokeColor = color_code
-			label_prop.text = sensor["attribute"][0]
-
-			marker = new google.maps.Marker({
-				position: latlng,
-				icon: icon_prop,
-				label: label_prop
-			})
-			marker.setMap(gmap)
+			if (!points_attr[P]){
+				points_attr[P] = new Set()
+			}
+			points_attr[P].add(attr)
+			points_group[P] = group_counter
 			sensor_counter++
 		}
 		group_counter++
 	}
+	for (let [key, value] of Object.entries(points_attr)){
+		var color_code = get_color_code(points_group[key])
+		icon_prop.fillColor = color_code
+		// icon_prop.strokeColor = color_code
+
+		var label = ""
+		for (var str of points_attr[key]){
+			label += str + " "
+		}
+		label_prop.text = label
+		latlng = new google.maps.LatLng(parseFloat(key.split([0])), parseFloat(key.split(',')[1]))
+		marker = new google.maps.Marker({
+			position: latlng,
+			icon: icon_prop,
+			label: label_prop
+		})
+		marker.setMap(gmap)
+	}
 	meanLng /= sensor_counter
 	meanLat /= sensor_counter
-	console.log(meanLng, meanLat)
 	gmap.setCenter(new google.maps.LatLng(meanLng, meanLat))
 	console.log(json_data["dataset"])
 };
+
+
 
 $("#go").click(function(){
 	  var icon_prop = {
@@ -109,8 +163,6 @@ $("#go").click(function(){
 	var evoRate = $("#evoRate").val()
 	var distance = $("#distance").val()
 	var url = `http://10.0.16.7:8000/api/miscela/${dataset}/${maxAtt}/${minSup}/${evoRate}/${distance}`
-	
-	// `http://10.0.16.7:8000/api/miscela/santander/2/1000/0.5/0.1`
 
 	console.log(url)
 
