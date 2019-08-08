@@ -1,3 +1,18 @@
+var label_santander = {"temperature": "T", "light": "L", "noise": "N", "traffic_volume": "Tv", "humidity": "H"}
+var label_china = {"PM2.5": "PM2.5",
+				   "PM10": "PM10",
+				   "SO2": "SO2",
+				   "NO2": "NO2",
+				   "CO": "CO",
+				   "O3": "O3",
+				   "sunny-persent": "%S",
+				   "rainy-persent": "%R",
+				   "rain": "R",
+				   "temperature": "T",
+				   "air-pressure": "A",
+				   "humidity": "H",
+				   "wind_speed": "W"}
+
 function id_to_HSV(n){
 	var rotate = ((n / 6) % 6) * 10
 	var H = rotate + (n % 6)*60
@@ -45,6 +60,8 @@ function get_color_code(i){
 	return RGB_to_HEX(HSV_to_RGB(id_to_HSV(i)))
 }
 
+
+
 function put_markers(data, icon_prop, label_prop){
 	var json_data = JSON.parse(data)
 	var sensor_counter = 0
@@ -67,7 +84,7 @@ function put_markers(data, icon_prop, label_prop){
 			var color_code = get_color_code(group_counter)
 			icon_prop.fillColor = color_code
 			// icon_prop.strokeColor = color_code
-			label_prop.text = sensor["attribute"][0]
+			label_prop.text = label_santander[sensor["attribute"]]
 
 			marker = new google.maps.Marker({
 				position: latlng,
@@ -85,6 +102,8 @@ function put_markers(data, icon_prop, label_prop){
 	gmap.setCenter(new google.maps.LatLng(meanLng, meanLat))
 	console.log(json_data["dataset"])
 };
+
+
 
 $("#go").click(function(){
 	  var icon_prop = {
@@ -109,8 +128,6 @@ $("#go").click(function(){
 	var evoRate = $("#evoRate").val()
 	var distance = $("#distance").val()
 	var url = `http://10.0.16.7:8000/api/miscela/${dataset}/${maxAtt}/${minSup}/${evoRate}/${distance}`
-	
-	// `http://10.0.16.7:8000/api/miscela/santander/2/1000/0.5/0.1`
 
 	console.log(url)
 
