@@ -72,6 +72,14 @@ function num_duplication(p, points){
 	return ret
 }
 
+function is_cached(dataset, maxAtt, minSup, evoRate, distance){
+	var url = `http://10.0.16.7:8000/api/is_exist/${dataset}/${maxAtt}/${minSup}/${evoRate}/${distance}`
+	var is_exist = false
+	$.get(url, function(data){
+		is_exist = data
+	})
+	return is_exist
+}
 
 
 function put_markers(data, icon_prop, label_prop){
@@ -166,6 +174,14 @@ $("#go").click(function(){
 
 	console.log(url)
 
+	var is_exist = is_cached(dataset, maxAtt, minSup, evoRate, distance)
+
+
+	if (!is_exist){
+		var is_ok = confirm("データの取得に時間がかかります。よろしいですか？")
+		if (!is_ok)
+			return
+	}
 	$.ajax({
 		url: url,
 		type: "GET",
