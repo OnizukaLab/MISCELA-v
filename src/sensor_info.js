@@ -1,3 +1,18 @@
+var label_santander = {"temperature": "T", "light": "L", "noise": "N", "traffic_volume": "Tv", "humidity": "H"}
+var label_china = {"PM2.5": "PM2.5",
+				   "PM10": "PM10",
+				   "SO2": "SO2",
+				   "NO2": "NO2",
+				   "CO": "CO",
+				   "O3": "O3",
+				   "sunny-persent": "%S",
+				   "rainy-persent": "%R",
+				   "rain": "R",
+				   "temperature": "T",
+				   "air-pressure": "A",
+				   "humidity": "H",
+				   "wind_speed": "W"}
+
 function id_to_HSV(n){
 	var rotate = ((n / 6) % 6) * 10
 	var H = rotate + (n % 6)*60
@@ -45,56 +60,105 @@ function get_color_code(i){
 	return RGB_to_HEX(HSV_to_RGB(id_to_HSV(i)))
 }
 
+function num_duplication(p, points){
+	var ret = 0
+	var dis = 0
+	for (var q of points){
+		dis = (q[0] - p[0]) ** 2 + (q[1] - p[1]) ** 2
+		if (dis == 0){
+			ret += 1
+		}
+	}
+	return ret
+}
+
+function is_cached(dataset, maxAtt, minSup, evoRate, distance){
+	var url_e = `http://10.0.16.7:8000/api/is_exists/${dataset}/${maxAtt}/${minSup}/${evoRate}/${distance}`
+	var is_exist = $.ajax({
+		type: "GET",
+		url: url_e,
+		async: false
+	}).responseText
+
+	return is_exist.toLowerCase() === "true"
+}
+
+
 function put_markers(data, icon_prop, label_prop){
 	var json_data = JSON.parse(data)
 	var sensor_counter = 0
 	var group_counter = 0
 	var latlng = new google.maps.LatLng(35.66666, 139.766766)
 	var mapOptions = {
-		zoom: 6,
+		zoom: 15,
 		center: latlng
 	}
 	$("#map").empty()
 	var gmap = new google.maps.Map($("#map")[0], mapOptions)
 	var meanLng = 0
 	var meanLat = 0
+	var points_attr = {}
+	var points_group = {}
 	for (var group of json_data["groups"]){
 		for (var sensor of group){
+			icon_prop.labelOrigin = new google.maps.Point(0, 0)
 			latlng = new google.maps.LatLng(sensor["log"], sensor["lat"])
 			meanLng += sensor["log"]
 			meanLat += sensor["lat"]
+			var P = [sensor["log"], sensor["lat"]]
+			var attr = ""
+			console.log(json_data["dataset"] === "santander")
+			if (json_data["dataset"] === "santander"){
+				attr = label_santander[sensor["attribute"]]
+			}
+			else{
+				attr = label_china[sensor["attribute"]]
+			}
 
-			var color_code = get_color_code(group_counter)
-			icon_prop.fillColor = color_code
-			icon_prop.strokeColor = color_code
-			label_prop.text = sensor["attribute"][0]
-
-			marker = new google.maps.Marker({
-				position: latlng,
-				icon: icon_prop,
-				label: label_prop
-			})
-			marker.setMap(gmap)
+			if (!points_attr[P]){
+				points_attr[P] = new Set()
+			}
+			points_attr[P].add(attr)
+			points_group[P] = group_counter
 			sensor_counter++
 		}
 		group_counter++
 	}
+	for (let [key, value] of Object.entries(points_attr)){
+		var color_code = get_color_code(points_group[key])
+		icon_prop.fillColor = color_code
+		// icon_prop.strokeColor = color_code
+
+		var label = ""
+		for (var str of points_attr[key]){
+			label += str + " "
+		}
+		label_prop.text = label
+		latlng = new google.maps.LatLng(parseFloat(key.split([0])), parseFloat(key.split(',')[1]))
+		marker = new google.maps.Marker({
+			position: latlng,
+			icon: icon_prop,
+			label: label_prop
+		})
+		marker.setMap(gmap)
+	}
 	meanLng /= sensor_counter
 	meanLat /= sensor_counter
-	console.log(meanLng, meanLat)
 	gmap.setCenter(new google.maps.LatLng(meanLng, meanLat))
 	console.log(json_data["dataset"])
 };
+
+
 
 $("#go").click(function(){
 	  var icon_prop = {
 	    fillColor: "#FF0000",
 	    fillOpacity: 1.0,
-	    path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-	    scale: 8,
-	    strokeColor: "#FF0000",
+	    path: google.maps.SymbolPath.CIRCLE,
+	    scale: 20,
+	    strokeColor: "#000000",
 	    strokeWeight: 1.0,
-	    labelOrigin: new google.maps.Point(0, -2.2)
+	    labelOrigin: new google.maps.Point(0, 0)
 	  }
 	  var label_prop = {
 	    text: 'A',
@@ -102,15 +166,26 @@ $("#go").click(function(){
 	    fontSize: '12px'
 	  }
 
-	console.log("send request")
+
 	var dataset = $("#dataset").val()
 	var maxAtt = $("#maxAtt").val()
 	var minSup = $("#minSup").val()
 	var evoRate = $("#evoRate").val()
 	var distance = $("#distance").val()
 	var url = `http://10.0.16.7:8000/api/miscela/${dataset}/${maxAtt}/${minSup}/${evoRate}/${distance}`
+
 	console.log(url)
 
+	var is_exist = is_cached(dataset, maxAtt, minSup, evoRate, distance)
+	console.log(is_exist)
+
+
+	if (!is_exist){
+		var is_ok = confirm("データの取得に時間がかかります。よろしいですか？")
+		if (!is_ok)
+			return
+	}
+	console.log("send request")
 	$.ajax({
 		url: url,
 		type: "GET",
