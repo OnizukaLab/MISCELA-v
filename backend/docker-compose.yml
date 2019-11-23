@@ -9,7 +9,11 @@ services:
     tty: true
     volumes:
       - "./miscela_api:/code"
-    command: bash -c "python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
+    command: bash -c "bash /code/wait_pg.sh && python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
+    environment:
+      PGPASSWORD: postgres
+    depends_on:
+      - "postgresql"
   postgresql:
     container_name: postgres_wakuta
     build: ./psql
