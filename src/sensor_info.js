@@ -73,7 +73,7 @@ function num_duplication(p, points){
 }
 
 function is_cached(dataset, maxAtt, minSup, evoRate, distance){
-	var url_e = `http://10.0.16.7:8000/api/is_exists/${dataset}/${maxAtt}/${minSup}/${evoRate}/${distance}`
+	var url_e = `http://localhost:8000/api/is_exists/${dataset}/${maxAtt}/${minSup}/${evoRate}/${distance}`
 	var is_exist = $.ajax({
 		type: "GET",
 		url: url_e,
@@ -172,7 +172,7 @@ $("#go").click(function(){
 	var minSup = $("#minSup").val()
 	var evoRate = $("#evoRate").val()
 	var distance = $("#distance").val()
-	var url = `http://10.0.16.7:8000/api/miscela/${dataset}/${maxAtt}/${minSup}/${evoRate}/${distance}`
+	var url = `http://localhost:8000/api/miscela/${dataset}/${maxAtt}/${minSup}/${evoRate}/${distance}`
 
 	console.log(url)
 

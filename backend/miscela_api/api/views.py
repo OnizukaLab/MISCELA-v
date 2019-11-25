@@ -8,6 +8,9 @@ from api.src.output import outputCAP
 from api.src.output import outputCAPJson
 from api.models import Cache
 
+def is_exists(request, dataset, maxAtt, minSup, evoRate, distance):
+    cached = Cache.objects.filter(dataset=dataset, maxAtt=maxAtt, minSup=minSup, evoRate=evoRate, distance=distance)
+    return HttpResponse(len(cached) > 0)
 
 def miscela(request, dataset, maxAtt, minSup, evoRate, distance):
 
@@ -25,8 +28,6 @@ def miscela(request, dataset, maxAtt, minSup, evoRate, distance):
     CAP, S = miscela_(params)
 
     # output
-    #CAP = pickle.load(open("api/pickle/" + params['dataset'] + "/cap.pickle", "rb"))
-    #S = pickle.load(open("api/pickle/"+ params['dataset']+"/sensor.pickle", "rb"))
     json_res = outputCAPJson(params['dataset'], S, CAP)
     print(json_res)
 
