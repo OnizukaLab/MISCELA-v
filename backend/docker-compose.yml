@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  miscela:
+    container_name: miscela_wakuta
+    build: .
+    ports:
+      - "8000:8000"
+    tty: true
+    volumes:
+      - "./miscela_api:/code"
+    command: bash -c "bash /code/wait_pg.sh && python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
+    environment:
+      PGPASSWORD: postgres
+    depends_on:
+      - "postgresql"
+  postgresql:
+    container_name: postgres_wakuta
+    build: ./psql
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
