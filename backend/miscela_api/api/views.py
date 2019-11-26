@@ -7,6 +7,19 @@ from api.src.func import miscela_
 from api.src.output import outputCAP
 from api.src.output import outputCAPJson
 from api.models import Cache
+from api.models import DataSet
+
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def upload(request):
+    print(request.FILES['data_name'])
+    print(request.FILES['data_type'])
+    for line in request.FILES['upload_file']:
+        print(line)
+    # ここで，取得したデータを入れる
+    return HttpResponse(True)
 
 def is_exists(request, dataset, maxAtt, minSup, evoRate, distance):
     cached = Cache.objects.filter(dataset=dataset, maxAtt=maxAtt, minSup=minSup, evoRate=evoRate, distance=distance)

@@ -87,7 +87,7 @@ DATABASES = {
         'NAME': 'miscela',
         'USER': 'root',
         'PASSWORD': 'example',
-        'HOST': 'mongo',
+        'HOST': 'mongo_miscela',
         'PORT': 27017,
     }
 }

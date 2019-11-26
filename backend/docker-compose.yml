@@ -2,7 +2,7 @@ version: '3'
 
 services:
   miscela:
-    container_name: miscela_wakuta
+    container_name: miscela_server
     build: .
     ports:
       - "8000:8000"
@@ -14,7 +14,7 @@ services:
     depends_on:
       - "mongo"
   mongo:
-    container_name: mongo_wakuta
+    container_name: mongo_miscela
     build: ./mongo
     ports:
       - "27017:27017"
