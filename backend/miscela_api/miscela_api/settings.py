@@ -83,12 +83,12 @@ WSGI_APPLICATION = 'miscela_api.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'postgresql',
-        'PORT': '5432',
+        'ENGINE': 'djongo',
+        'NAME': 'miscela',
+        'USER': 'root',
+        'PASSWORD': 'example',
+        'HOST': 'mongo',
+        'PORT': 27017,
     }
 }
 

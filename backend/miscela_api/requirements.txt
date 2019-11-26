@@ -14,4 +14,5 @@ django
 djangorestframework
 django-filter
 django-cors-headers
-psycopg2
+sqlparse==0.2.4
+djongo
