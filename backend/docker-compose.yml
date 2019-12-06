@@ -7,6 +7,7 @@ services:
     ports:
       - "8000:8000"
     tty: true
+    stdin_open: true
     volumes:
       - "./miscela_api:/code"
         #command: bash -c "bash /code/wait_pg.sh && python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
@@ -20,7 +21,7 @@ services:
       - "27017:27017"
     volumes:
       - "./mongo:/docker-entrypoint-initdb.d/"
-      - "./mongo_data:/data/db"
+        #      - "./mongo_data:/data/db"
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
