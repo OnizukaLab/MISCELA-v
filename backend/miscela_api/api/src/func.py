@@ -3,6 +3,8 @@ import numpy as np
 import copy
 import pickle
 import json
+import io
+import pdb
 from pyclustering.cluster.dbscan import dbscan
 
 from api.src.myclass import Color
@@ -13,16 +15,38 @@ from api.src.myclass import Result
 from api.src.myutility import deg2km
 from api.src.myutility import dist
 
-def loadData(attribute, dataset):
+from api.models import DataSet
 
-    data = pd.read_csv("api/db/"+dataset+"/data.csv", dtype=object)
+def loadDataFile(dataset):
+    tmp = '\n'.join(list(map(lambda d: d.data, DataSet.objects.filter(data_name=dataset, data_type='data'))))
+    data = []
+    for d in tmp.split('\n'):
+        if len(d) > 0:
+            data.append(d)
+    data = '\n'.join(data)
+
+    data = pd.read_csv(io.StringIO(data))
+    data["id"] = list(map(lambda i: str(i).zfill(5), data["id"]))
+    data["data"] = list(map(lambda i: float(i), data["data"]))
+    return data
+
+def loadLocationFile(dataset):
+    location = pd.read_csv(io.StringIO(DataSet.objects.filter(data_name=dataset, data_type='location')[0].data))
+    location["id"] = list(map(lambda i: str(i).zfill(5), location["id"]))
+    location["lat"] = list(map(lambda i: str(round(i, 5)), location["lat"]))
+    location["lon"] = list(map(lambda i: str(round(i, 5)), location["lon"]))
+    return location
+
+
+def loadData(attribute, dataset, data, location):
     data = data[data["attribute"] == attribute]
-    location = pd.read_csv("api/db/"+dataset+"/location.csv", dtype=object)
+    
     location = location[location["attribute"] == attribute]
     ids = list(location["id"])
     timestamps = list(data["time"])
 
     s = list()
+
     for i in ids:
         location_i = location[location["id"] == str(i)]
         location_i = (float(location_i["lat"]), float(location_i["lon"]))
@@ -309,9 +333,18 @@ def miscela_(args):
     print("\t|- phase0: loading data ... ", end="")
     S = list()
     M = dict()
-    for attribute in list(open("api/db/"+str(args['dataset'])+"/attribute.csv", "r").readlines()):
+    
+    dataset_attribute = DataSet.objects.filter(data_name=str(args['dataset']), data_type='attribute')
+    #if len(dataset_attribute) == 0:
+    #    print('no dataset found')
+    #    return False, False
+
+    #for attribute in dataset_attribute[0].data.split('\n'):
+    data_df = loadDataFile(args['dataset'])
+    location_df = loadLocationFile(args['dataset'])
+    for attribute in list(open("api/db/" + str(args['dataset']) + "/attribute.csv", "r").readlines()):
         attribute = attribute.strip()
-        S_a = loadData(attribute, str(args['dataset']))
+        S_a = loadData(attribute, str(args['dataset']), data_df, location_df)
         S += S_a
         M[attribute] = len(S_a)
         del S_a
@@ -337,17 +370,5 @@ def miscela_(args):
     print("\t|- phase4: cap search ... ", end="")
     CAPs = capSearch(S, C, args['maxAtt'], args['minSup'])
     print(Color.GREEN + "OK" + Color.END)
-
-    # save the results into .pickle file
-    #with open("api/pickle/"+args['dataset']+"/sensor.pickle", "wb") as pl:
-    #    pickle.dump(S, pl)
-    #with open("api/pickle/"+args['dataset']+"/attribute.pickle", "wb") as pl:
-    #    pickle.dump(M, pl)
-    #with open("api/pickle/"+args['dataset']+"/cluster.pickle", "wb") as pl:
-    #    pickle.dump(C, pl)
-    #with open("api/pickle/"+args['dataset']+"/cap.pickle", "wb") as pl:
-    #    pickle.dump(CAPs, pl)
-    #with open("api/pickle/"+args['dataset']+"/threshold.pickle", "wb") as pl:
-    #    pickle.dump(thresholds, pl)
 
     return CAPs, S

@@ -3,6 +3,8 @@ from django.http import HttpResponse
 
 import argparse
 import pickle
+import csv
+import pdb
 from api.src.func import miscela_
 from api.src.output import outputCAP
 from api.src.output import outputCAPJson
@@ -14,11 +16,13 @@ from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt
 def upload(request):
-    print(request.FILES['data_name'])
-    print(request.FILES['data_type'])
-    for line in request.FILES['upload_file']:
-        print(line)
-    # ここで，取得したデータを入れる
+    data_name = request.POST['data_name']
+    data_type = request.POST['data_type']
+    data_id = request.POST['data_id']
+    csv_data = request.FILES['upload_file'].read().decode('utf-8')
+
+    data_set = DataSet(data_name=data_name, data_type=data_type, data_id=data_id, data=csv_data)
+    data_set.save()
     return HttpResponse(True)
 
 def is_exists(request, dataset, maxAtt, minSup, evoRate, distance):
@@ -39,6 +43,9 @@ def miscela(request, dataset, maxAtt, minSup, evoRate, distance):
     params["distance"] = float(distance)
     # cap mining
     CAP, S = miscela_(params)
+
+    if CAP == False:
+        return HttpResponse(False)
 
     # output
     json_res = outputCAPJson(params['dataset'], S, CAP)

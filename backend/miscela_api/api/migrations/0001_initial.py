@@ -23,4 +23,14 @@ class Migration(migrations.Migration):
                 ('json_output', models.TextField()),
             ],
         ),
+        migrations.CreateModel(
+            name='DataSet',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('data_name', models.TextField()),
+                ('data_type', models.TextField()),
+                ('data_id', models.IntegerField()),
+                ('data', models.TextField()),
+            ],
+        ),
     ]
