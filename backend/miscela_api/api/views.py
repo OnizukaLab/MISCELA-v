@@ -14,6 +14,14 @@ from api.models import DataSet
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.csrf import csrf_exempt
 
+def is_dataset_exists(request, dataset):
+    dataset = DataSet.objects.filter(data_name=dataset)
+    return HttpResponse(len(dataset) > 0)
+
+def delete_dataset(request, dataset):
+    dataset = DataSet.objects.filter(data_name=dataset).delete()
+    return HttpResponse(dataset[0] > 0)
+
 @csrf_exempt
 def upload(request):
     data_name = request.POST['data_name']
