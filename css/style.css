@@ -34,17 +34,6 @@ body {
 	transform: rotate(585deg);
 }
 
-select {
-	padding: 8px;
-	outline: none;
-	background: none;
-	/*border: none;*/
-	height: 32px;
-	width: 120px;
-	line-height: 32px;
-}
-
-
 button {
 	margin: 8px auto;
 	display: block;

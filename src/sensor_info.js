@@ -167,7 +167,7 @@ $("#go").click(function(){
 	  }
 
 
-	var dataset = $("#dataset").val()
+	var dataset = $("#dataset").attr('data')
 	var maxAtt = $("#maxAtt").val()
 	var minSup = $("#minSup").val()
 	var evoRate = $("#evoRate").val()

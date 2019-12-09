@@ -1,0 +1,193 @@
+html {
+	background: #fefefe;
+}
+
+header {
+	padding: 128px 0 64px;
+	/*background: #000;*/
+	/*background-image: url(../img/header-background.jpg);*/
+	background-size: cover;
+}
+
+h1 {
+	margin: 0 auto;
+	padding-top: 12.46136%;
+	width: 40%;
+	background-image: url(../img/logo.png);
+	background-size: contain;
+	background-repeat: no-repeat;
+	text-shadow: 5px 5px 5px 5px white;
+}
+
+.select-dataset {
+	margin: 0 auto;
+	width: 483px;
+	background: #fefefe;
+	border: solid 1px #ccc;
+	border-radius: 8px;
+}
+
+.select-dataset::after {
+	content: '';
+	clear: both;
+	display: block;
+}
+
+.select-dataset input {
+	width: 0;
+	height: 0;
+	display: none;
+}
+
+.select-dataset label {
+	margin: 0;
+	padding: 0;
+	height: 40px;
+	width: 120px;
+	display: block;
+	border-right: solid 1px;
+	border-color: inherit;
+	text-align: center;
+	float: left;
+	line-height: 40px;
+}
+
+.select-dataset label:last-child {
+	border: none;
+	border-top-right-radius: inherit;
+	border-bottom-right-radius: inherit;
+}
+
+.select-dataset label:nth-child(2) {
+	border-top-left-radius: inherit;
+	border-bottom-left-radius: inherit;
+}
+
+.select-dataset input:checked + label {
+	background: rgb(21,73,171);
+	color: #fefefe;
+}
+
+
+.description {
+	margin: 16px auto;
+	width: 483px;
+}
+
+.description p {
+	margin: 0;
+	padding: 0;
+}
+
+.description section {
+	border: solid 1px;
+	border-color: rgba(0, 0, 0, 0);
+	border-radius: 8px;
+	display: none;
+}
+
+.description section p, .description section label {
+	min-height: 80px;
+	padding: 16px;
+}
+
+.description .santander-desc {
+	display: block;
+}
+
+.description .yourdata-desc {
+	border-color: #ccc;
+}
+
+.description .yourdata-desc input {
+	padding: 2px;
+	outline: none;
+	border: none;
+	border-bottom: solid 1px #ccc;
+	font-size: .8rem;
+}
+
+.description .yourdata-desc label {
+	height: 100%;
+	display: block;
+}
+
+#my_form, #my_form * {
+	display: none;
+}
+
+
+button {
+	margin: 8px auto;
+	display: block;
+	padding: 8px 16px;
+	border-radius: 4px;
+	outline: none;
+}
+
+button.start-button:active {
+	background: rgb(21,73,171);
+	color: #fefefe;
+}
+
+
+/* ON/OFFボタン */
+/*
+.onoff {
+	height: 32px;
+	line-height: 32px;
+	width: 128px;
+	position: relative;
+	display: inline-block;
+}
+
+.onoff:before,
+.onoff:after {
+	width: 50%;
+	height: 100%;
+	position: absolute;
+	display: block;
+	text-align: center;
+	border: solid 1px #888;
+	z-index: 0;
+	top: 0;
+}
+
+.onoff:before {
+	content: 'OFF';
+	background: #ccc;
+	left: 0;
+}
+
+.onoff:after {
+	content: 'ON';
+	color: #f0f0f0;
+	left: 50%;
+}
+
+.onoff div {
+	width: 50%;
+	height: 100%;
+	z-index: 1;
+	position: absolute;
+	top: 0;
+	left: 50%;
+	border: solid 1px #888;
+	background-color: #f0f0f0;
+	-webkit-transition: left 0.2s;
+	transition: left 0.2s;
+}
+
+.onoff input {
+	margin: 0;
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	z-index: 2;
+	opacity: 0;
+}
+
+.onoff input:checked + div {
+	left: 0;
+}
+*/

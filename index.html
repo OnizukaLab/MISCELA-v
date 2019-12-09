@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="description", content="MISCELA-v">
+    <script src="http://code.jquery.com/jquery-2.0.0.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="css/top.css">
+    <title>時空間データマイニングデモ</title>
+  </head>
+  <body>
+    <header><h1></h1></header>
+    <div class="select-dataset">
+      <input type="radio" name="dataset" id="santander" checked="checked"><label for="santander">Santander</label><input type="radio" name="dataset" id="china6"><label for="china6">China-6</label><input type="radio" name="dataset" id="china32"><label for="china32">China-32</label><input type="radio" name="dataset" id="yourdata"><label for="yourdata">Your dataset</label>
+    </div>
+
+    <div class="description">
+      <section class="santander-desc">
+        <p>イタリア・サンタンデル市のサンプルデータです。</p>
+      </section>
+      <section class="china6-desc">
+        <p>China-6です。</p>
+      </section>
+      <section class="china32-desc">
+        <p>China-32です。</p>
+      </section>
+      <section id="drop_zone" class="yourdata-desc">
+        <label for="upload_file">データセット名を入力：<input type="text" id="dataset-name"><br><br>ここにファイルをドロップまたはクリックしてファイルを選択<br><small>※data.csv, location.csv, attribute.csv の3つを指定してください。</small><output id="list"></output><br><output id="sending"></output></label>
+        <form id="my_form" enctype=multipart/form-data>
+            <input type="file" id="upload_file" class="upload_file" name="upload_file" multiple="multiple" accept="text/csv">
+        </form>
+      </section>
+    </div>
+    <button id="start" class="start-button">始める</button>
+    <script src="src/top.js"></script>
+  </body>
+</html>
+
