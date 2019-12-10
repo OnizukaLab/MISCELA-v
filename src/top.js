@@ -32,7 +32,7 @@ $(function() {
 		file_upload();
 	});
 
-	let yourdata = localStorage.getItem('dataset');
+	let yourdata = localStorage.getItem('yourdata');
 	yourdata = yourdata == null ? Math.random().toString(32).substring(2) : yourdata;
 	$('#dataset-name').val(yourdata);
 });
@@ -94,6 +94,7 @@ function file_upload()
 	let yourdata = $('#dataset-name').val();
 	yourdata = yourdata == '' ? Math.random().toString(32).substring(2) : yourdata;
 	localStorage.setItem('dataset', yourdata);
+	localStorage.setItem('yourdata', yourdata);
 
 	$('#sending').html('処理中...');
 
