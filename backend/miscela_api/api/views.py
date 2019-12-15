@@ -6,6 +6,7 @@ import pickle
 import csv
 import pdb
 from api.src.func import miscela_
+from api.src.func import loadDataFile
 from api.src.output import outputCAP
 from api.src.output import outputCAPJson
 from api.models import Cache
@@ -21,6 +22,14 @@ def is_dataset_exists(request, dataset):
 def delete_dataset(request, dataset):
     dataset = DataSet.objects.filter(data_name=dataset).delete()
     return HttpResponse(dataset[0] > 0)
+
+def sensor(request, dataset, sensor_id, attribute):
+    data_df = loadDataFile(dataset)
+    if len(data_df) == 0:
+        return HttpResponse("Required data not found. upload data first.")
+
+    data_df = data_df.query(f'id == \'{sensor_id}\' and attribute == \'{attribute}\'')
+    return HttpResponse(data_df[['time', 'data']].to_json())
 
 @csrf_exempt
 def upload(request):

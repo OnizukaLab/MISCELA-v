@@ -18,23 +18,20 @@ from api.src.myutility import dist
 from api.models import DataSet
 
 def loadDataFile(dataset):
-    tmp = '\n'.join(list(map(lambda d: d.data, DataSet.objects.filter(data_name=dataset, data_type='data'))))
-    data = []
-    for d in tmp.split('\n'):
-        if len(d) > 0:
-            data.append(d)
-    data = '\n'.join(data)
+    datas = DataSet.objects.filter(data_name=dataset, data_type='data')
+    data = '\n'.join(list(map(lambda d: d.data, datas)))
+    data = data.replace('\n\n', '\n').strip('\n')
 
-    data = pd.read_csv(io.StringIO(data))
-    data["id"] = list(map(lambda i: str(i).zfill(5), data["id"]))
-    data["data"] = list(map(lambda i: float(i), data["data"]))
-    return data
+    data_df = pd.read_csv(io.StringIO(data))
+    data_df["id"] = data_df["id"].map(lambda i: str(i).zfill(5))
+    data_df["data"] = data_df["data"].map(lambda i: float(str(i)))
+    return data_df
 
 def loadLocationFile(dataset):
     location = pd.read_csv(io.StringIO(DataSet.objects.filter(data_name=dataset, data_type='location')[0].data))
-    location["id"] = list(map(lambda i: str(i).zfill(5), location["id"]))
-    location["lat"] = list(map(lambda i: str(round(i, 5)), location["lat"]))
-    location["lon"] = list(map(lambda i: str(round(i, 5)), location["lon"]))
+    location["id"] = location["id"].map(lambda i: str(i).zfill(5))
+    location["lat"] = location["lat"].map(lambda i: str(round(i, 5)))
+    location["lon"] = location["lon"].map(lambda i: str(round(i, 5)))
     return location
 
 
