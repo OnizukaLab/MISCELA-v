@@ -36,18 +36,18 @@ def loadLocationFile(dataset):
 
 
 def loadData(attribute, dataset, data, location):
-    data = data[data["attribute"] == attribute]
+    data = data.query(f'attribute == \'{attribute}\'')
     
-    location = location[location["attribute"] == attribute]
-    ids = list(location["id"])
-    timestamps = list(data["time"])
+    location = location.query(f'attribute == \'{attribute}\'')
+    ids = list(location.id)
+    timestamps = list(data.time)
 
     s = list()
 
     for i in ids:
-        location_i = location[location["id"] == str(i)]
+        location_i = location.query(f'id == \'{str(i)}\'')
         location_i = (float(location_i["lat"]), float(location_i["lon"]))
-        data_i = data[data["id"] == str(i)]
+        data_i = data.query(f'id == \'{str(i)}\'')
         data_i = list(data_i["data"])
         s_i = Sensor()
         s_i.setId(str(i))
@@ -98,6 +98,8 @@ def estimateThreshold(S, M, evoRate):
                 prev = value
 
         distribution.sort(reverse=True)
+        if len(distribution) == 0:
+            continue
         threshold = distribution[int(evoRate * len(distribution))]
         thresholds[attribute] = threshold
         offset += M[attribute]
@@ -319,6 +321,57 @@ def getCAP(S, y, psi, C_X):
 
         return C_Y
 
+def miscela_sensor(args, sensors, data_df):
+
+    print("*----------------------------------------------------------*")
+    print("* MISCELA is getting start ...")
+
+    # load data on memory
+    print("\t|- phase0: loading data ... ", end="")
+    S = list()
+    M = dict()
+    
+    dataset_attribute = DataSet.objects.filter(data_name=str(args['dataset']), data_type='attribute')[0].data
+    data_df = loadDataFile(args['dataset'])
+    location_df = loadLocationFile(args['dataset'])
+    for attribute in dataset_attribute.rstrip('\n').split('\n'):
+    #for attribute in attributes:
+        attribute = attribute.strip()
+        S_a = loadData(attribute, str(args['dataset']), data_df, location_df)
+        S += S_a
+        M[attribute] = len(S_a)
+        del S_a
+
+        print(Color.GREEN + "OK" + Color.END)
+
+    # data segmenting
+    print("\t|- phase1: pre-processing ... ", end="")
+    dataSegmenting(S)
+    print(Color.GREEN + "OK" + Color.END)
+
+    # extract evolving timestamps
+    print("\t|- phase2: extracting evolving timestamp ... ", end="")
+    thresholds = estimateThreshold(S, M, args['evoRate'])
+    extractEvolving(S, thresholds)
+    print(Color.GREEN + "OK" + Color.END)
+
+    # clustering
+    print("\t|- phase3: clustering ... ", end="")
+    C = clustering(S, args['distance'])
+    print(Color.GREEN + "OK" + Color.END)
+
+    # CAP search
+    print("\t|- phase4: cap search ... ", end="")
+    CAPs = capSearch(S, C, args['maxAtt'], args['minSup'])
+    print(Color.GREEN + "OK" + Color.END)
+
+    tmp_cap = []
+    for cap in CAPs:
+        if all([S[m].getId() in sensors for m in cap.getMember()]):
+           tmp_cap.append(cap)
+           break
+
+    return tmp_cap[0], S
 
 
 def miscela_(args):
@@ -331,15 +384,14 @@ def miscela_(args):
     S = list()
     M = dict()
     
-    dataset_attribute = DataSet.objects.filter(data_name=str(args['dataset']), data_type='attribute')
+    dataset_attribute = DataSet.objects.filter(data_name=str(args['dataset']), data_type='attribute')[0].data
     #if len(dataset_attribute) == 0:
     #    print('no dataset found')
     #    return False, False
 
-    #for attribute in dataset_attribute[0].data.split('\n'):
     data_df = loadDataFile(args['dataset'])
     location_df = loadLocationFile(args['dataset'])
-    for attribute in list(open("api/db/" + str(args['dataset']) + "/attribute.csv", "r").readlines()):
+    for attribute in dataset_attribute.rstrip('\n').split('\n'):
         attribute = attribute.strip()
         S_a = loadData(attribute, str(args['dataset']), data_df, location_df)
         S += S_a
