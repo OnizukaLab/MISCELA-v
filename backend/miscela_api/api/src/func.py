@@ -342,7 +342,7 @@ def miscela_sensor(args, sensors, data_df):
         M[attribute] = len(S_a)
         del S_a
 
-        print(Color.GREEN + "OK" + Color.END)
+    print(Color.GREEN + "OK" + Color.END)
 
     # data segmenting
     print("\t|- phase1: pre-processing ... ", end="")

@@ -2,7 +2,10 @@ import requests
 import io
 import datetime
 
-url = 'http://localhost:8000/api/upload/'
+#host= "10.0.16.1"
+host= "localhost"
+
+url = 'http://' +  host + ':8000/api/upload/'
 
 print("santander: attribute")
 requests.post(url, data={'data_name': 'santander', 'data_type': 'attribute', 'data_id': 0}, files={'upload_file': open('./api/db/santander/attribute.csv', 'r')})
