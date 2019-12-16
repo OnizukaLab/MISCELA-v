@@ -1,6 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse
-
+from django.http import HttpResponse 
 import argparse
 import pickle
 import csv
@@ -13,6 +12,7 @@ from api.src.func import loadDataFile
 from api.src.output import outputCAP
 from api.src.output import outputCAPJson
 from api.models import Cache
+from api.models import CapCache
 from api.models import DataSet
 
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -25,14 +25,6 @@ def is_dataset_exists(request, dataset):
 def delete_dataset(request, dataset):
     dataset = DataSet.objects.filter(data_name=dataset).delete()
     return HttpResponse(dataset[0] > 0)
-
-def sensor(request, dataset, sensor_id, attribute):
-    data_df = loadDataFile(dataset)
-    if len(data_df) == 0:
-        return HttpResponse("Required data not found. upload data first.")
-
-    data_df = data_df.query(f'id == \'{sensor_id}\' and attribute == \'{attribute}\'')
-    return HttpResponse(data_df[['time', 'data']].to_json())
 
 @csrf_exempt
 def upload(request):
@@ -71,6 +63,17 @@ def miscela(request, dataset, maxAtt, minSup, evoRate, distance):
     if CAP == False:
         return HttpResponse(False)
 
+    for cap in CAP:
+        sensor_ids = cap.getMember()
+        sensor_attributes = cap.getAttribute()
+        indexes = cap.getP1() | cap.getP2()
+
+        sensor_id_csv = ','.join(list(map(lambda s: str(S[s].getId()), sensor_ids)))
+        sensor_attribute_csv = ','.join(list(map(lambda s: str(s), sensor_attributes)))
+        indexes_csv = ','.join(list(map(lambda i: str(i), indexes)))
+        cc = CapCache(dataset=dataset, maxAtt=maxAtt, minSup=minSup, evoRate=evoRate, distance=distance, sensors=sensor_id_csv, attributes=sensor_attribute_csv, indexes=indexes_csv)
+        cc.save()
+
     # output
     json_res = outputCAPJson(params['dataset'], S, CAP)
 
@@ -82,28 +85,32 @@ def miscela(request, dataset, maxAtt, minSup, evoRate, distance):
 @csrf_exempt
 def sensor_correlation(request, dataset, maxAtt, minSup, evoRate, distance):
     sensor_ids = dict(request.POST)['sensor_ids']
+    sensor_attributes = dict(request.POST)['sensor_attributes']
     data_df = loadDataFile(dataset)
 
-    #attributes = itertools.chain.from_iterable([set(data_df.query(f'id == \'{sensor_id}\'').attribute.values) for sensor_id in sensor_ids])
+    cap_caches = CapCache.objects.filter(dataset=dataset, maxAtt=maxAtt, minSup=minSup, evoRate=evoRate, distance=distance)
+    if len(cap_caches) == 0:
+        raise "cap cache should be in the CapCache. But not found"
 
-    params = _set_params(dataset, maxAtt, minSup, evoRate, distance)
-    CAP, S = miscela_sensor(params, sensor_ids, data_df)
-    indexes = list(CAP.getP1() | CAP.getP2())
+    cap_cache = None
+    for cc in cap_caches:
+        cache_sensor_ids = set(cc.sensors.split(','))
+        cache_sensor_attributes = set(cc.attributes.split(','))
+        if not (set(sensor_ids) == cache_sensor_ids and set(sensor_attributes) == cache_sensor_attributes):
+            continue
+        cap_cache = cc
+        break
+
+    indexes = list(map(lambda i: int(i),cap_cache.indexes.split(',')))
     indexes.sort()
 
     result = dict()
     result['sensor'] = dict()
-    for sensor_index in CAP.getMember():
-        attribute = S[sensor_index].getAttribute()
-        sensor_id = S[sensor_index].getId()
-        result['sensor']['timestamp'] = list(data_df.query(f'id == \'{sensor_id}\' and attribute == \'{attribute}\'').time)
-        result['sensor'][sensor_id] = list(data_df.query(f'id == \'{sensor_id}\' and attribute == \'{attribute}\'').data)
-        #result['sensor'][sensor_id] = []
-        #for time in result['sensor']['timestamp']:
-        #    tmp = data_df.query(f'id == \'{sensor_id}\' and attribute == \'{attribute}\'')[['time','data']]
-        #    result['sensor'][sensor_id].append(tmp[tmp.time == time].data)
-
+    for sensor_id, attribute in zip(sensor_ids, sensor_attributes):
+        target_df = data_df.query(f'id == \'{sensor_id}\' and attribute == \'{attribute}\'')
+        result['sensor'][sensor_id] = dict()
+        result['sensor'][sensor_id]['timestamp'] = list(target_df.time)
+        result['sensor'][sensor_id]['data'] = list(target_df.data)
     result['indexes'] = indexes
 
     return HttpResponse(json.dumps(result))
-
