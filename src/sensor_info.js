@@ -51,7 +51,7 @@ function HSV_to_RGB(hsv){
 }
 
 function RGB_to_HEX (rgb) {
-	return "#" + rgb.map(function(value) {
+	return rgb.map(function(value) {
 		return ("0" + value.toString(16)).slice(-2);
 	}).join("") ;
 }
@@ -89,11 +89,21 @@ function activate_fn(color){
 		var icon_prop = p.getIcon()
 		icon_prop.fillColor = color
 		while(true){
-			icon_prop.fillColor = color
-			p.setIcon(icon_prop)
+			var image = new google.maps.MarkerImage('http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|' + color)
+			p.setIcon(image)
+			p.color_now = color
+			if (!p.is_open){
+				p.window_.open(p.getMap(), p)
+				p.is_open = true
+			}
+			else{
+				p.window_.close()
+				p.is_open = false
+			}
+			// infowindow.close()
 			p = this.prev_icon
 			icon_prop = p.getIcon()
-			if (icon_prop.fillColor === color){
+			if (p.color_now === color){
 				break
 			}
 		}
@@ -104,6 +114,7 @@ function activate_fn(color){
 
 
 function put_markers(data, icon_prop, label_prop){
+	console.log(data)
 	var json_data = JSON.parse(data)
 	var sensor_counter = 0
 	var group_counter = 0
@@ -129,10 +140,10 @@ function put_markers(data, icon_prop, label_prop){
 			var P = [sensor["log"], sensor["lat"]]
 			var attr = ""
 			if (json_data["dataset"] === "santander"){
-				attr = label_santander[sensor["attribute"]]
+				attr = sensor["attribute"]
 			}
 			else{
-				attr = label_china[sensor["attribute"]]
+				attr = sensor["attribute"]
 			}
 
 			if (!points_attr[P]){
@@ -154,27 +165,36 @@ function put_markers(data, icon_prop, label_prop){
 	for (let [group_num, value_list] of Object.entries(group_members)){
 		var marker_prev = null 
 		var marker_st = null
+		var c = 0
 		for (var point of value_list){
+			c++;
 			//ハイライト時の色
 			var color_code = get_color_code(group_patterns[group_num])
 			//デフォルト色
-			icon_prop.fillColor = "#888888"
 
 			//表示するラベルの設定
 			var label = ""
 			for (var str of points_attr[point]){
-				label += str + " "
+				label += str + "<br>"
 			}
-			label_prop.text = label
 
 			//マーカを置く
 			latlng = new google.maps.LatLng(point[0], point[1])
+			var image = new google.maps.MarkerImage('http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|' + '888888')
+
 			marker = new google.maps.Marker({
 				position: latlng,
-				icon: icon_prop,
-				label: label_prop
+				// icon: image,
+				icon: image,
+				// label: label_prop
 			})
+
+		    var infowindow = new google.maps.InfoWindow({
+		        content: label
+		    });
 			marker.setMap(gmap)
+			marker.window_ = infowindow
+			marker.is_open = false
 
 			//マーカを前イテレーション時のマーカと繋げる
 			marker.prev_icon = marker_prev
@@ -183,7 +203,7 @@ function put_markers(data, icon_prop, label_prop){
 				marker_st = marker
 			}
 			google.maps.event.addListener(marker, 'mouseover', activate_fn(color_code))
-			google.maps.event.addListener(marker, 'mouseout', activate_fn("#888888"))
+			google.maps.event.addListener(marker, 'mouseout', activate_fn('888888'))
 			marker_prev = marker
 		}
 
@@ -200,13 +220,13 @@ function put_markers(data, icon_prop, label_prop){
 
 $("#go").click(function(){
 	  var icon_prop = {
-	    fillColor: "#FF0000",
-	    fillOpacity: 1.0,
-	    path: google.maps.SymbolPath.CIRCLE,
-	    scale: 20,
+	    fillColor: "#888888",
+	    // fillOpacity: 1.0,
+	    // path: google.maps.SymbolPath.CIRCLE,
+	    // scale: 20,
 	    strokeColor: "#000000",
-	    strokeWeight: 1.0,
-	    labelOrigin: new google.maps.Point(0, 0)
+	    // strokeWeight: 1.0,
+	    // labelOrigin: new google.maps.Point(0, 0)
 	  }
 	  var label_prop = {
 	    text: 'A',
