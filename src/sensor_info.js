@@ -112,6 +112,56 @@ function activate_fn(color){
 	return fn
 }
 
+function draw_timeseries(data){
+	var json_data = JSON.parse(data)
+	console.log(json_data)
+}
+
+function get_and_draw_timeseries(sensor_id){
+	// console.log(JSON.stringify({'sensor_ids': sensor_id}))
+	var dataset = $("#dataset").val()
+	var maxAtt = $("#maxAtt").val()
+	var minSup = $("#minSup").val()
+	var evoRate = $("#evoRate").val()
+	var distance = $("#distance").val()
+	var url = `http://10.0.16.1:8000/api/sensor_correlation/${dataset}/${maxAtt}/${minSup}/${evoRate}/${distance}`
+	$.ajax({
+		url: url,
+		data: JSON.stringify({sensor_ids: sensor_id}),
+		type: "POST",
+		dataType: "json",
+		contentType: 'application/json',
+	})
+	.done(function(data){
+		draw_timeseries(data)
+	})
+	.fail(function(data){
+		console.log("Error at function: get_and_draw_timeseries")
+		console.log(data)
+	});
+}
+
+function gather_fn(event){
+	console.log('marker pushed')
+	console.log(event)
+	data = []
+	sensor_ids = []
+	var st_id = this.id_
+	var st_attr = this.attr_
+	var p = this
+	while (true){
+	    var sensor_id = p.id_
+	    var sensor_attr = p.attr_
+	    sensor_ids.push(sensor_id)
+	    p = p.prev_icon
+	    if (p.id_ === st_id && p.attr_ === st_attr){
+	    	break
+	    }
+	}
+
+	get_and_draw_timeseries(sensor_ids)
+}
+
 
 function put_markers(data, icon_prop, label_prop){
 	console.log(data)
@@ -129,6 +179,7 @@ function put_markers(data, icon_prop, label_prop){
 	var meanLat = 0
 	var points_attr = {}
 	var points_group = {}
+	var points_id = {}
 	var group_members = {}
 	var group_patterns = []
 	for (var group of json_data["groups"]){
@@ -153,6 +204,7 @@ function put_markers(data, icon_prop, label_prop){
 				group_members[group_counter] = new Set()
 			}
 			points_attr[P].add(attr)
+			points_id[P] = sensor["id"]
 			group_members[group_counter].add(P)
 			points_group[P] = group_counter
 			sensor_counter++
@@ -195,6 +247,7 @@ function put_markers(data, icon_prop, label_prop){
 			marker.setMap(gmap)
 			marker.window_ = infowindow
 			marker.is_open = false
+			marker.id_ = points_id[point]
 
 			//マーカを前イテレーション時のマーカと繋げる
 			marker.prev_icon = marker_prev
@@ -204,6 +257,7 @@ function put_markers(data, icon_prop, label_prop){
 			}
 			google.maps.event.addListener(marker, 'mouseover', activate_fn(color_code))
 			google.maps.event.addListener(marker, 'mouseout', activate_fn('888888'))
+			google.maps.event.addListener(marker, 'click', gather_fn)
 			marker_prev = marker
 		}
 
