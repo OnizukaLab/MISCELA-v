@@ -19,6 +19,7 @@ from api.models import DataSet
 
 def loadDataFile(dataset):
     datas = DataSet.objects.filter(data_name=dataset, data_type='data')
+    datas = sorted(datas, key=lambda d: d.data_id)
     data = '\n'.join(list(map(lambda d: d.data, datas)))
     data = data.replace('\n\n', '\n').strip('\n')
 
