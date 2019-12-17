@@ -121,19 +121,22 @@ function draw_timeseries(data){
 
 	const timestamp = json_data.timestamp;
 	const sensors = Object.values(json_data.sensor);
+	const sensor_keys = Object.keys(json_data.sensor);
 	const indexes = json_data.indexes;
 
 	chart_data = [];
-	for(let sensor of sensors) {
+	const sensors_len = sensors.length;
+	for(let i = 0; i < sensors_len; i++) {
+		sensor = sensors[i]
 		const max = Math.max.apply(null,sensor);
 		sensor = sensor.map(x => x == null ? null : x/max);
 
 		let dataPoints = [];
 		let len = sensor.length;
-		for(let i = 0; i < len; i++)
-			dataPoints.push({ x: new Date(timestamp[i]), y:sensor[i] });
+		for(let j = 0; j < len; j++)
+			dataPoints.push({ x: new Date(timestamp[j]), y:sensor[j] });
 		chart_data.push({
-				legendText: "",
+				legendText: sensor_keys[i],
 				showInLegend: true, 
 				type: "line",
 				markerType: "circle",
