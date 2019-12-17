@@ -3,6 +3,8 @@ import numpy as np
 import copy
 import pickle
 import json
+import io
+import pdb
 from pyclustering.cluster.dbscan import dbscan
 
 from api.src.myclass import Color
@@ -13,20 +15,39 @@ from api.src.myclass import Result
 from api.src.myutility import deg2km
 from api.src.myutility import dist
 
-def loadData(attribute, dataset):
+from api.models import DataSet
 
-    data = pd.read_csv("api/db/"+dataset+"/data.csv", dtype=object)
-    data = data[data["attribute"] == attribute]
-    location = pd.read_csv("api/db/"+dataset+"/location.csv", dtype=object)
-    location = location[location["attribute"] == attribute]
-    ids = list(location["id"])
-    timestamps = list(data["time"])
+def loadDataFile(dataset):
+    datas = DataSet.objects.filter(data_name=dataset, data_type='data')
+    data = '\n'.join(list(map(lambda d: d.data, datas)))
+    data = data.replace('\n\n', '\n').strip('\n')
+
+    data_df = pd.read_csv(io.StringIO(data))
+    data_df["id"] = data_df["id"].map(lambda i: str(i).zfill(5))
+    data_df["data"] = data_df["data"].map(lambda i: float(str(i)))
+    return data_df
+
+def loadLocationFile(dataset):
+    location = pd.read_csv(io.StringIO(DataSet.objects.filter(data_name=dataset, data_type='location')[0].data))
+    location["id"] = location["id"].map(lambda i: str(i).zfill(5))
+    location["lat"] = location["lat"].map(lambda i: str(round(i, 5)))
+    location["lon"] = location["lon"].map(lambda i: str(round(i, 5)))
+    return location
+
+
+def loadData(attribute, dataset, data, location):
+    data = data.query(f'attribute == \'{attribute}\'')
+    
+    location = location.query(f'attribute == \'{attribute}\'')
+    ids = list(location.id)
+    timestamps = list(data.time)
 
     s = list()
+
     for i in ids:
-        location_i = location[location["id"] == str(i)]
+        location_i = location.query(f'id == \'{str(i)}\'')
         location_i = (float(location_i["lat"]), float(location_i["lon"]))
-        data_i = data[data["id"] == str(i)]
+        data_i = data.query(f'id == \'{str(i)}\'')
         data_i = list(data_i["data"])
         s_i = Sensor()
         s_i.setId(str(i))
@@ -77,6 +98,8 @@ def estimateThreshold(S, M, evoRate):
                 prev = value
 
         distribution.sort(reverse=True)
+        if len(distribution) == 0:
+            continue
         threshold = distribution[int(evoRate * len(distribution))]
         thresholds[attribute] = threshold
         offset += M[attribute]
@@ -298,6 +321,57 @@ def getCAP(S, y, psi, C_X):
 
         return C_Y
 
+def miscela_sensor(args, sensors, data_df):
+
+    print("*----------------------------------------------------------*")
+    print("* MISCELA is getting start ...")
+
+    # load data on memory
+    print("\t|- phase0: loading data ... ", end="")
+    S = list()
+    M = dict()
+    
+    dataset_attribute = DataSet.objects.filter(data_name=str(args['dataset']), data_type='attribute')[0].data
+    data_df = loadDataFile(args['dataset'])
+    location_df = loadLocationFile(args['dataset'])
+    for attribute in dataset_attribute.rstrip('\n').split('\n'):
+    #for attribute in attributes:
+        attribute = attribute.strip()
+        S_a = loadData(attribute, str(args['dataset']), data_df, location_df)
+        S += S_a
+        M[attribute] = len(S_a)
+        del S_a
+
+    print(Color.GREEN + "OK" + Color.END)
+
+    # data segmenting
+    print("\t|- phase1: pre-processing ... ", end="")
+    dataSegmenting(S)
+    print(Color.GREEN + "OK" + Color.END)
+
+    # extract evolving timestamps
+    print("\t|- phase2: extracting evolving timestamp ... ", end="")
+    thresholds = estimateThreshold(S, M, args['evoRate'])
+    extractEvolving(S, thresholds)
+    print(Color.GREEN + "OK" + Color.END)
+
+    # clustering
+    print("\t|- phase3: clustering ... ", end="")
+    C = clustering(S, args['distance'])
+    print(Color.GREEN + "OK" + Color.END)
+
+    # CAP search
+    print("\t|- phase4: cap search ... ", end="")
+    CAPs = capSearch(S, C, args['maxAtt'], args['minSup'])
+    print(Color.GREEN + "OK" + Color.END)
+
+    tmp_cap = []
+    for cap in CAPs:
+        if all([S[m].getId() in sensors for m in cap.getMember()]):
+           tmp_cap.append(cap)
+           break
+
+    return tmp_cap[0], S
 
 
 def miscela_(args):
@@ -309,9 +383,17 @@ def miscela_(args):
     print("\t|- phase0: loading data ... ", end="")
     S = list()
     M = dict()
-    for attribute in list(open("api/db/"+str(args['dataset'])+"/attribute.csv", "r").readlines()):
+    
+    dataset_attribute = DataSet.objects.filter(data_name=str(args['dataset']), data_type='attribute')[0].data
+    #if len(dataset_attribute) == 0:
+    #    print('no dataset found')
+    #    return False, False
+
+    data_df = loadDataFile(args['dataset'])
+    location_df = loadLocationFile(args['dataset'])
+    for attribute in dataset_attribute.rstrip('\n').split('\n'):
         attribute = attribute.strip()
-        S_a = loadData(attribute, str(args['dataset']))
+        S_a = loadData(attribute, str(args['dataset']), data_df, location_df)
         S += S_a
         M[attribute] = len(S_a)
         del S_a
@@ -337,17 +419,5 @@ def miscela_(args):
     print("\t|- phase4: cap search ... ", end="")
     CAPs = capSearch(S, C, args['maxAtt'], args['minSup'])
     print(Color.GREEN + "OK" + Color.END)
-
-    # save the results into .pickle file
-    #with open("api/pickle/"+args['dataset']+"/sensor.pickle", "wb") as pl:
-    #    pickle.dump(S, pl)
-    #with open("api/pickle/"+args['dataset']+"/attribute.pickle", "wb") as pl:
-    #    pickle.dump(M, pl)
-    #with open("api/pickle/"+args['dataset']+"/cluster.pickle", "wb") as pl:
-    #    pickle.dump(C, pl)
-    #with open("api/pickle/"+args['dataset']+"/cap.pickle", "wb") as pl:
-    #    pickle.dump(CAPs, pl)
-    #with open("api/pickle/"+args['dataset']+"/threshold.pickle", "wb") as pl:
-    #    pickle.dump(thresholds, pl)
 
     return CAPs, S

@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <meta name="descrtiption", content="google mapデモ">
+    <meta name="description", content="This web page is a demo page of MISCELA. MISCELA is an efficient mining method for correlated attribute patterns of multi-attribute sensor set in the city.">
     <script src="http://code.jquery.com/jquery-2.0.0.js"></script>
     <link rel="stylesheet" type="text/css" href="css/normalize.css">
     <link rel="stylesheet" type="text/css" href="css/style.css">
@@ -30,16 +30,20 @@
         </div>
         <div class="param">
           <h3><span>距離</span>distance</h3>
-          <input type="text" id="distance" value="0.1">
+          <input type="text" id="distance" value="0.1"> km
         </div>
       </section>
-      <button id="go" class="update-button">更新</button>
-      <section class="graph">グラフ</section>
+      <button id="go" class="update-button button">更新</button>
+      <section class="graph">
+        <div id="chart"></div>
+      </section>
       <section class="fold-button">
-        <button id="fold-button"></button>
+        <button id="fold-button" class="button"></button>
       </section>
       <div class="widget-toggle-button" id="widget-toggle-button"></div>
     </nav>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script type="text/javascript" src="src/chart.js"></script>
     <script type="text/javascript" src="src/show_map.js"></script>
     <script type="text/javascript" src="src/sensor_info.js"></script>
     <script type="text/javascript" src="src/script.js"></script>
@@ -47,4 +51,3 @@
       src="https://maps.googleapis.com/maps/api/js?callback=initMap"></script>
   </body>
 </html>
-
