@@ -112,12 +112,104 @@ function activate_fn(color){
 	return fn
 }
 
+
 function draw_timeseries(data){
 	const reg = /NaN/g
-	const data_conv = data.replace(reg, '"NaN"')
-	const json_data = JSON.parse(data_conv)
-	console.log(json_data)
+	const data_conv = data.replace(reg, 'null')
+	json_data = JSON.parse(data_conv)
+	// console.log(json_data)
 
+	const timestamp = json_data.timestamp;
+	const sensors = Object.values(json_data.sensor);
+	const indexes = json_data.indexes;
+
+	chart_data = [];
+	for(let sensor of sensors) {
+		const max = Math.max.apply(null,sensor);
+		sensor = sensor.map(x => x == null ? null : x/max);
+
+		let dataPoints = [];
+		let len = sensor.length;
+		for(let i = 0; i < len; i++)
+			dataPoints.push({ x: new Date(timestamp[i]), y:sensor[i] });
+		chart_data.push({
+				legendText: "",
+				showInLegend: true, 
+				type: "line",
+				markerType: "circle",
+				connectNullData: true,
+				dataPoints: dataPoints
+		});
+	}
+
+	let striplines = [];
+	for(let index of indexes) {
+		striplines.push({ color: "#ffcc99", value: new Date(timestamp[index]) });
+	}
+
+	console.log(chart_data);
+	console.log(striplines);
+
+	mychart = new CanvasJS.Chart("chart", {
+		backgroundColor: "rgba(0,0,0,0)",
+		zoomEnabled: true,
+		axisX:{
+			stripLines: striplines,
+			// stripLines: [
+			// 	{
+			// 		startValue: new Date('2016-08-10 12:00:00'),
+			// 		endValue: new Date('2016-08-10 18:00:00'),
+			// 		color: "#ffcc99"
+			// 	},
+			// 	{
+			// 		startValue: new Date('2016-08-11 09:00:00'),
+			// 		endValue: new Date('2016-08-11 15:00:00'),
+			// 		color: "#ffcc99"
+			// 	},
+			// 	{
+			// 		startValue: new Date('2016-08-13 12:00:00'),
+			// 		endValue: new Date('2016-08-13 16:00:00'),
+			// 		color: "#ffcc99"
+			// 	},
+			// ],
+			// valueFormatString: "####"
+		},
+		axisY: {
+			maximum: 1,
+			minimum: 0
+		},
+		// legend: {
+		// 	// horizontalAlign: "left", // left, center ,right 
+		// 	verticalAlign: "top",  // top, center, bottom
+		// 	fontSize: 12,
+		// },
+		data: chart_data
+// 		[
+// 			{
+// 				legendText: "id=10015, attr=light",
+// 				showInLegend: true, 
+// 				type: "line",
+// 				markerType: "circle",
+// 				connectNullData: true,
+// 				dataPoints: [
+// {x: new Date('2016-03-01 00:00:00'), y:null},
+// {x: new Date('2016-03-01 01:00:00'), y:0.000204622},
+// 				]
+// 			},
+// 			{
+// 				type: "line",
+// 				markerType: "circle",
+// 				connectNullData: true,
+// 				legendText: "id=10015, attr=light",
+// 				showInLegend: true, 
+// 				dataPoints: [
+// {x: new Date('2016-03-01 00:00:00'), y:null},
+// {x: new Date('2016-03-01 01:00:00'), y:0.233745298},
+// 				]
+// 			}
+// 		]
+	});
+	mychart.render();
 }
 
 function unique(arr1, arr2){
