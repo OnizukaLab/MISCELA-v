@@ -114,7 +114,7 @@ function activate_fn(color){
 
 function draw_timeseries(data){
 	const reg = /NaN/g
-	const data_conv = data.replace(reg, '-1')
+	const data_conv = data.replace(reg, '"NaN"')
 	const json_data = JSON.parse(data_conv)
 	console.log(json_data)
 
