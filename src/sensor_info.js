@@ -113,8 +113,28 @@ function activate_fn(color){
 }
 
 function draw_timeseries(data){
-	console.log(data)
-	var json_data = JSON.parse(data)
+	const reg = /NaN/g
+	const data_conv = data.replace(reg, '-1')
+	const json_data = JSON.parse(data_conv)
+	console.log(json_data)
+
+}
+
+function unique(arr1, arr2){
+	var appeared_1 = new Set()
+	var appeared_2 = new Set()
+	var ret1 = []
+	var ret2 = []
+	for (let i=0; i<arr1.length; i++){
+		if (!(appeared_1.has(arr1[i]) || appeared_2.has(arr2[i]))){
+			ret1.push(arr1[i])
+			ret2.push(arr2[i])
+			appeared_1.add(arr1[i])
+			appeared_2.add(arr2[i])
+		}
+	}
+
+	return [ret1, ret2]
 
 }
 
@@ -122,20 +142,26 @@ function get_and_draw_timeseries(sensor_id, sensor_attr){
 
 	// console.log(JSON.stringify({'sensor_ids': sensor_id}))
 	const formdata = new FormData()
-	sensor_id = ['10015', '00036']
-	sensor_attr = ["light", "temperature"]
+	console.log(sensor_id)
+	console.log(sensor_attr)
+
+	var appeared_id = new Set()
+	const tmp = unique(sensor_id, sensor_attr)
+	console.log(tmp)
+	const unique_id = tmp[0]
+	const unique_attr = tmp[1]
+
 	// sensor_id.forEach(entry => { formdata.append('sensor_ids[]', entry)})
 	// formdata.append('sensor_ids', JSON.stringify(sensor_id))
 	// formdata.append('sensor_attributes', JSON.stringify(sensor_attr))
-	sensor_id.forEach(entry => {formdata.append('sensor_ids', entry)})
-	sensor_attr.forEach(entry => {formdata.append('sensor_attributes', entry)})
+	unique_id.forEach(entry => {formdata.append('sensor_ids', entry)})
+	unique_attr.forEach(entry => {formdata.append('sensor_attributes', entry)})
 	var dataset = $("#dataset").val()
 	var maxAtt = $("#maxAtt").val()
 	var minSup = $("#minSup").val()
 	var evoRate = $("#evoRate").val()
 	var distance = $("#distance").val()
 	var url = `http://10.0.16.1:8000/api/sensor_correlation/${dataset}/${maxAtt}/${minSup}/${evoRate}/${distance}`
-	var data = {'sensor_id': sensor_id, 'sensor_attributes': sensor_attr}
 	$.ajax({
 		url: url,
 		data: formdata,
@@ -143,7 +169,6 @@ function get_and_draw_timeseries(sensor_id, sensor_attr){
 		processData: false,
 		cache       : false,
 		contentType : false,
-		async       : false
 	})
 	.done(function(data){
 		draw_timeseries(data)
@@ -229,10 +254,6 @@ function put_markers(data, icon_prop, label_prop){
 				points_id[P] = []
 			}
 			points_attr[P].push(attr)
-			console.log(points_id[P])
-			console.log(P)
-			console.log(sensor["id"])
-			console.log(sensor)
 			points_id[P].push(sensor["id"])
 			// points_id[P] = sensor["id"]
 			group_members[group_counter].add(P)
