@@ -112,6 +112,103 @@ function activate_fn(color){
 	return fn
 }
 
+function draw_timeseries(data){
+	const reg = /NaN/g
+	const data_conv = data.replace(reg, '"NaN"')
+	const json_data = JSON.parse(data_conv)
+	console.log(json_data)
+
+}
+
+function unique(arr1, arr2){
+	var appeared_1 = new Set()
+	var appeared_2 = new Set()
+	var ret1 = []
+	var ret2 = []
+	for (let i=0; i<arr1.length; i++){
+		if (!(appeared_1.has(arr1[i]) || appeared_2.has(arr2[i]))){
+			ret1.push(arr1[i])
+			ret2.push(arr2[i])
+			appeared_1.add(arr1[i])
+			appeared_2.add(arr2[i])
+		}
+	}
+
+	return [ret1, ret2]
+
+}
+
+function get_and_draw_timeseries(sensor_id, sensor_attr){
+
+	// console.log(JSON.stringify({'sensor_ids': sensor_id}))
+	const formdata = new FormData()
+	console.log(sensor_id)
+	console.log(sensor_attr)
+
+	var appeared_id = new Set()
+	const tmp = unique(sensor_id, sensor_attr)
+	console.log(tmp)
+	const unique_id = tmp[0]
+	const unique_attr = tmp[1]
+
+	// sensor_id.forEach(entry => { formdata.append('sensor_ids[]', entry)})
+	// formdata.append('sensor_ids', JSON.stringify(sensor_id))
+	// formdata.append('sensor_attributes', JSON.stringify(sensor_attr))
+	unique_id.forEach(entry => {formdata.append('sensor_ids', entry)})
+	unique_attr.forEach(entry => {formdata.append('sensor_attributes', entry)})
+	var dataset = $("#dataset").val()
+	var maxAtt = $("#maxAtt").val()
+	var minSup = $("#minSup").val()
+	var evoRate = $("#evoRate").val()
+	var distance = $("#distance").val()
+	var url = `http://10.0.16.1:8000/api/sensor_correlation/${dataset}/${maxAtt}/${minSup}/${evoRate}/${distance}`
+	$.ajax({
+		url: url,
+		data: formdata,
+		type: "POST",
+		processData: false,
+		cache       : false,
+		contentType : false,
+	})
+	.done(function(data){
+		draw_timeseries(data)
+	})
+	.fail(function(data){
+		console.log("Error at function: get_and_draw_timeseries")
+		console.log(data)
+	});
+}
+
+function gather_fn(event){
+	console.log('marker pushed')
+	console.log(event)
+	data = []
+	sensor_ids = []
+	sensor_attr = []
+	var st_id = this.id_
+	var st_attr = this.attr_
+	var p = this
+	while (true){
+	    var sensor_id = p.id_
+	    var attr = p.attr_
+	    for (var id_ of sensor_id){
+	    	sensor_ids.push(id_)
+	    }
+	    for (var attr_ of attr){
+	    	sensor_attr.push(attr_)
+	    }
+	    // sensor_ids.push(p.id_)
+	    // sensor_attr.push(p.attr_)
+	    p.visited = true
+	    p = p.prev_icon
+	    if (p.id_ === st_id && p.attr_ === st_attr){
+	    	break
+	    }
+	}
+
+	get_and_draw_timeseries(sensor_ids, sensor_attr)
+}
+
 
 function put_markers(data, icon_prop, label_prop){
 	console.log(data)
@@ -129,6 +226,7 @@ function put_markers(data, icon_prop, label_prop){
 	var meanLat = 0
 	var points_attr = {}
 	var points_group = {}
+	var points_id = {}
 	var group_members = {}
 	var group_patterns = []
 	for (var group of json_data["groups"]){
@@ -147,12 +245,17 @@ function put_markers(data, icon_prop, label_prop){
 			}
 
 			if (!points_attr[P]){
-				points_attr[P] = new Set()
+				points_attr[P] = []
 			}
 			if (!group_members[group_counter]){
 				group_members[group_counter] = new Set()
 			}
-			points_attr[P].add(attr)
+			if (!points_id[P]){
+				points_id[P] = []
+			}
+			points_attr[P].push(attr)
+			points_id[P].push(sensor["id"])
+			// points_id[P] = sensor["id"]
 			group_members[group_counter].add(P)
 			points_group[P] = group_counter
 			sensor_counter++
@@ -174,7 +277,8 @@ function put_markers(data, icon_prop, label_prop){
 
 			//表示するラベルの設定
 			var label = ""
-			for (var str of points_attr[point]){
+			var attr_set = new Set(points_attr[point])
+			for (var str of attr_set){
 				label += str + "<br>"
 			}
 
@@ -195,6 +299,8 @@ function put_markers(data, icon_prop, label_prop){
 			marker.setMap(gmap)
 			marker.window_ = infowindow
 			marker.is_open = false
+			marker.id_ = points_id[point]
+			marker.attr_ = points_attr[point]
 
 			//マーカを前イテレーション時のマーカと繋げる
 			marker.prev_icon = marker_prev
@@ -204,6 +310,7 @@ function put_markers(data, icon_prop, label_prop){
 			}
 			google.maps.event.addListener(marker, 'mouseover', activate_fn(color_code))
 			google.maps.event.addListener(marker, 'mouseout', activate_fn('888888'))
+			google.maps.event.addListener(marker, 'click', gather_fn)
 			marker_prev = marker
 		}
 
