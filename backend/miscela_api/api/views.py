@@ -66,10 +66,10 @@ def miscela(request, dataset, maxAtt, minSup, evoRate, distance):
     for cap in CAP:
         sensor_ids = cap.getMember()
         sensor_attributes = cap.getAttribute()
-        indexes = cap.getP1() | cap.getP2()
+        indexes = sorted(list(cap.getP1() | cap.getP2()))
 
-        sensor_id_csv = ','.join(list(map(lambda s: str(S[s].getId()), sensor_ids)))
-        sensor_attribute_csv = ','.join(list(map(lambda s: str(s), sensor_attributes)))
+        sensor_id_csv = ','.join(list(map(lambda s: str(S[s].getId()), sorted(sensor_ids))))
+        sensor_attribute_csv = ','.join(list(map(lambda s: str(s), sorted(sensor_attributes))))
         indexes_csv = ','.join(list(map(lambda i: str(i), indexes)))
         cc = CapCache(dataset=dataset, maxAtt=maxAtt, minSup=minSup, evoRate=evoRate, distance=distance, sensors=sensor_id_csv, attributes=sensor_attribute_csv, indexes=indexes_csv)
         cc.save()
@@ -86,31 +86,25 @@ def miscela(request, dataset, maxAtt, minSup, evoRate, distance):
 def sensor_correlation(request, dataset, maxAtt, minSup, evoRate, distance):
     sensor_ids = dict(request.POST)['sensor_ids']
     sensor_attributes = dict(request.POST)['sensor_attributes']
+
+    sensor_ids_str = ','.join(sorted(sensor_ids))
+    sensor_attributes_str = ','.join(sorted(sensor_attributes))
+
     data_df = loadDataFile(dataset)
 
-    cap_caches = CapCache.objects.filter(dataset=dataset, maxAtt=maxAtt, minSup=minSup, evoRate=evoRate, distance=distance)
+    cap_caches = CapCache.objects.filter(dataset=dataset, maxAtt=maxAtt, minSup=minSup, evoRate=evoRate, distance=distance, sensors=sensor_ids_str, attributes=sensor_attributes_str)
     if len(cap_caches) == 0:
         raise "cap cache should be in the CapCache. But not found"
-
-    cap_cache = None
-    for cc in cap_caches:
-        cache_sensor_ids = set(cc.sensors.split(','))
-        cache_sensor_attributes = set(cc.attributes.split(','))
-        if not (set(sensor_ids) == cache_sensor_ids and set(sensor_attributes) == cache_sensor_attributes):
-            continue
-        cap_cache = cc
-        break
+    cap_cache = cap_caches[0]
 
     indexes = list(map(lambda i: int(i),cap_cache.indexes.split(',')))
-    indexes.sort()
-
     result = dict()
     result['sensor'] = dict()
     for sensor_id, attribute in zip(sensor_ids, sensor_attributes):
         target_df = data_df.query(f'id == \'{sensor_id}\' and attribute == \'{attribute}\'')
-        result['sensor'][sensor_id] = dict()
-        result['sensor'][sensor_id]['timestamp'] = list(target_df.time)
-        result['sensor'][sensor_id]['data'] = list(target_df.data)
+        if 'timestamp' not in result:
+            result['timestamp'] = list(target_df.time)
+        result['sensor'][sensor_id] = list(target_df.data)
     result['indexes'] = indexes
 
     return HttpResponse(json.dumps(result))
