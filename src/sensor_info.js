@@ -156,7 +156,7 @@ function get_and_draw_timeseries(sensor_id, sensor_attr){
 	// formdata.append('sensor_attributes', JSON.stringify(sensor_attr))
 	unique_id.forEach(entry => {formdata.append('sensor_ids', entry)})
 	unique_attr.forEach(entry => {formdata.append('sensor_attributes', entry)})
-	var dataset = $("#dataset").val()
+	var dataset = $("#dataset").attr('data')
 	var maxAtt = $("#maxAtt").val()
 	var minSup = $("#minSup").val()
 	var evoRate = $("#evoRate").val()
