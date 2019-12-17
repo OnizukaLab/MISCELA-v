@@ -116,8 +116,8 @@ function activate_fn(color){
 function draw_timeseries(data){
 	const reg = /NaN/g
 	const data_conv = data.replace(reg, 'null')
-	json_data = JSON.parse(data_conv)
-	// console.log(json_data)
+	const json_data = JSON.parse(data_conv)
+	console.log(json_data)
 
 	const timestamp = json_data.timestamp;
 	const sensors = Object.values(json_data.sensor);
@@ -144,7 +144,12 @@ function draw_timeseries(data){
 
 	let striplines = [];
 	for(let index of indexes) {
-		striplines.push({ color: "#ffcc99", value: new Date(timestamp[index]) });
+		striplines.push({
+			// color: "#ffcc99", value: new Date(timestamp[index])
+			startValue: new Date(timestamp[index]),
+			endValue: new Date(timestamp[index+1]),
+			color: "#ffcc99"
+		});
 	}
 
 	console.log(chart_data);

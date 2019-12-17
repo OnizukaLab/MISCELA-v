@@ -14,7 +14,7 @@ body {
 }
 
 .control-panel {
-	width: 480px;
+	width: 80%;
 	padding: 16px;
 	background: rgba(248, 248, 248, 0.9);
 	top: 16px;
@@ -28,6 +28,10 @@ body {
 .control-panel.hidden {
 	left: -512px;
 	box-shadow: 0 0 0 #888;
+}
+
+.control-panel.hidden {
+	width: 480px;
 }
 
 .control-panel.hidden .widget-toggle-button::after {
@@ -48,7 +52,7 @@ button.update-button {
 }
 
 .parameters {
-	width: 100%;	
+	width: 100%;
 }
 
 .parameters::after {
@@ -58,18 +62,18 @@ button.update-button {
 }
 
 .param {
-	width: 50%;
+	width: 20%;
 	float: left;
 	transition: width 0.1s ease-out;
 }
 
 .param:first-child {
-	width: 100%;
+	/*width: 100%;*/
 }
 
 .param input {
 	padding: 4px;
-	width: 64px;
+	width: 144px;
 	background: inherit;
 	border: none;
 	border-bottom: solid 1px #333;
@@ -113,7 +117,7 @@ button.update-button {
 .graph {
 	margin-top: 24px;
 	width: 100%;
-	height: 256px;
+	height: 640px;
 	/*border: solid 1px #888;*/
 	text-align: center;
 	overflow: hidden;
@@ -124,6 +128,10 @@ button.update-button {
 	height: 100%;
 }
 
+
+.control-panel.folded {
+	width: 480px;
+}
 
 .control-panel.folded button.update-button {
 	margin-right: 16px;
@@ -156,6 +164,10 @@ button.update-button {
 .control-panel.folded .param:first-child h3 {
 	margin-bottom: 0;
 	height: 0;
+}
+
+.control-panel.folded .param input {
+	width: 64px;
 }
 
 .control-panel.folded .graph {
