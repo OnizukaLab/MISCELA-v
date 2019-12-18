@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  miscela:
+    container_name: miscela_server
+    build: .
+    ports:
+      - "8000:8000"
+    tty: true
+    stdin_open: true
+    volumes:
+      - "./miscela_api:/code"
+        #command: bash -c "bash /code/wait_pg.sh && python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
+    command: bash -c "sleep 15 && python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
+    depends_on:
+      - "mongo"
+  mongo:
+    container_name: mongo_miscela
+    build: ./mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - "./mongo:/docker-entrypoint-initdb.d/"
+        #      - "./mongo_data:/data/db"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: miscela

@@ -1,0 +1,225 @@
+html {
+	font-family: "ヒラギノ角ゴ ProN W3", Hiragino Kaku Gothic ProN, "Yu Gothic", YuGothic, Arial, "メイリオ", Meiryo, sans-serif;
+
+}
+
+body, html {
+	width: 100%;
+	height: 100%;
+	font-size: 16px;
+}
+
+body {
+	position: relative;
+}
+
+#map {
+	width: 100%;
+	height: 100%;
+}
+
+.control-panel {
+	width: 80%;
+	padding: 16px;
+	background: rgba(248, 248, 248, 0.9);
+	top: 16px;
+	left: 0;
+	position: absolute;
+	box-shadow: 10px 0px 20px #888;
+	border-radius: 0 4px 4px 0;
+	transition: left 0.1s 0.1s ease-out;
+}
+
+.control-panel.hidden {
+	left: -512px;
+	box-shadow: 0 0 0 #888;
+}
+
+.control-panel.hidden {
+	width: 480px;
+}
+
+.control-panel.hidden .widget-toggle-button::after {
+	transform: rotate(585deg);
+}
+
+button {
+	margin: 8px auto;
+	display: block;
+	padding: 8px 16px;
+	border-radius: 4px;
+	outline: none;
+}
+
+button.update-button {
+	background: rgb(21,73,171);
+	color: #fefefe;
+}
+
+.parameters {
+	width: 100%;
+}
+
+.parameters::after {
+	content: '';
+	clear: both;
+	display: block;
+}
+
+.param {
+	width: 20%;
+	float: left;
+	transition: width 0.1s ease-out;
+}
+
+.param:first-child {
+	/*width: 100%;*/
+}
+
+.param input {
+	padding: 4px;
+	width: 144px;
+	background: inherit;
+	border: none;
+	border-bottom: solid 1px #333;
+	outline: none;
+	text-align: right;
+}
+
+.param h3 {
+	margin: 24px 0 8px;
+	font-weight: normal;
+}
+
+.param h3 span {
+	font-weight: bold;
+}
+
+.param h3 span::after {
+	content: ' ';
+}
+
+.fold-button {
+	padding: 16px 0 0;
+}
+.fold-button button::before {
+	content: '折りたたむ';
+}
+
+.fold-button button::after {
+	content: "";
+	margin-left: 12px;
+	width: 12px;
+	height: 12px;
+	border-left: solid 2px rgb(21,73,171);
+	border-top: solid 2px rgb(21,73,171);
+	display: inline-block;
+	transform: rotate(45deg);
+	position: relative;
+	top: 4px;
+}
+
+.graph {
+	margin-top: 24px;
+	width: 80vw;
+	/*border: solid 1px #888;*/
+	text-align: center;
+	overflow: hidden;
+	transition: height 0.1s ease-out, height 0.1s ease-out;
+}
+
+.graph > div {
+	height: 60vh;
+	width: 80vw;
+}
+
+.control-panel.hidden .graph {
+	width: 0;
+	height: 0;
+}
+
+
+.control-panel.folded {
+	width: 480px;
+}
+
+.control-panel.folded button.update-button {
+	margin-right: 16px;
+}
+
+.control-panel.folded .parameters {
+	height: 72px;
+	overflow: hidden;
+}
+
+.control-panel.folded .param {
+	width: 88px;
+}
+
+.control-panel.folded .param:first-child {
+	width: 128px;
+}
+
+.control-panel.folded h3 {
+	margin-bottom: 0;
+}
+
+.control-panel.folded h3 span {
+	width: 0;
+	height: 0;
+	overflow: hidden;
+	display: inline-block;
+}
+
+.control-panel.folded .param:first-child h3 {
+	margin-bottom: 0;
+	height: 0;
+}
+
+.control-panel.folded .param input {
+	width: 64px;
+}
+
+.control-panel.folded .graph {
+	margin: 0;
+	height: 0;
+	width: 0;
+	border-width: 0px;
+}
+
+.control-panel.folded .fold-button {
+	position: absolute;
+	bottom: 16px;
+}
+
+.control-panel.folded .fold-button button::before {
+	content: '展開する';
+}
+
+.control-panel.folded .fold-button button::after {
+	top: auto;
+	bottom: 4px;
+	transform: rotate(225deg);
+}
+
+.widget-toggle-button {
+	width: 24px;
+	height: 48px;
+	/*background: #46b2e8;*/
+	top: 24px;
+	right: -24px;
+	position: absolute;
+}
+
+.widget-toggle-button::after {
+	content: "";
+	margin: 18px 0 0 8px;
+	width: 12px;
+	height: 12px;
+	border-left: solid 2px #fff;
+	border-bottom: solid 2px #fff;
+	transform: rotate(45deg);
+	display: block;
+	transition: transform 0.1s ease-out;
+}
+

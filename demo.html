@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="description", content="This web page is a demo page of MISCELA. MISCELA is an efficient mining method for correlated attribute patterns of multi-attribute sensor set in the city.">
+    <script src="http://code.jquery.com/jquery-2.0.0.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <title>時空間データマイニングデモ</title>
+  </head>
+  <body>
+    <div id="map"></div>
+    <nav class="control-panel folded" id="control-panel">
+      <section class="parameters">
+        <div class="param">
+          <h3><span>地域</span></h3>
+          <p id="dataset"></p>
+        </div>
+        <div class="param">
+          <h3><span>属性最大数</span>MaxAtt</h3>
+          <input type="text" id="maxAtt" value="2">
+        </div>
+        <div class="param">
+          <h3><span>最小共起数</span>minSup</h3>
+          <input type="text" id="minSup" value="1000">
+        </div>
+        <div class="param">
+          <h3><span>変化率</span>evoRate</h3>
+          <input type="text" id="evoRate" value="0.8">
+        </div>
+        <div class="param">
+          <h3><span>距離</span>distance</h3>
+          <input type="text" id="distance" value="0.1"> km
+        </div>
+      </section>
+      <button id="go" class="update-button button">更新</button>
+      <section class="graph">
+        <div id="chart"></div>
+      </section>
+      <section class="fold-button">
+        <button id="fold-button" class="button"></button>
+      </section>
+      <div class="widget-toggle-button" id="widget-toggle-button"></div>
+    </nav>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script type="text/javascript" src="src/show_map.js"></script>
+    <script type="text/javascript" src="src/sensor_info.js"></script>
+    <script type="text/javascript" src="src/script.js"></script>
+    <script async defer
+      src="https://maps.googleapis.com/maps/api/js?callback=initMap"></script>
+  </body>
+</html>
