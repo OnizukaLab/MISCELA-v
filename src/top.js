@@ -1,4 +1,4 @@
-const baseurl = 'http://10.0.16.1:8000/api/';
+const baseurl = 'http://localhost:8000/api/';
 const CHUNK_SIZE = 100000;
 
 $(function() {

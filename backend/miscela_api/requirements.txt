@@ -15,4 +15,4 @@ djangorestframework
 django-filter
 django-cors-headers
 sqlparse==0.2.4
-djongo
+djongo==1.2.38
