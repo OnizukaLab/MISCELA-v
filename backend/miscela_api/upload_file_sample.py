@@ -2,7 +2,6 @@ import requests
 import io
 import datetime
 
-#host= "10.0.16.1"
 host= "localhost"
 
 url = 'http://' +  host + ':8000/api/upload/'
