@@ -38,7 +38,7 @@ def loadLocationFile(dataset):
 
 def loadData(attribute, dataset, data, location):
     data = data.query(f'attribute == \'{attribute}\'')
-    
+
     location = location.query(f'attribute == \'{attribute}\'')
     ids = list(location.id)
     timestamps = list(data.time)
@@ -331,7 +331,7 @@ def miscela_sensor(args, sensors, data_df):
     print("\t|- phase0: loading data ... ", end="")
     S = list()
     M = dict()
-    
+
     dataset_attribute = DataSet.objects.filter(data_name=str(args['dataset']), data_type='attribute')[0].data
     data_df = loadDataFile(args['dataset'])
     location_df = loadLocationFile(args['dataset'])
@@ -384,8 +384,9 @@ def miscela_(args):
     print("\t|- phase0: loading data ... ", end="")
     S = list()
     M = dict()
-    
+
     dataset_attribute = DataSet.objects.filter(data_name=str(args['dataset']), data_type='attribute')[0].data
+
     #if len(dataset_attribute) == 0:
     #    print('no dataset found')
     #    return False, False
@@ -419,6 +420,9 @@ def miscela_(args):
     # CAP search
     print("\t|- phase4: cap search ... ", end="")
     CAPs = capSearch(S, C, args['maxAtt'], args['minSup'])
+    #print("S:",S)
+    #print("C:",C)
+    #print("CAPs:",CAPs)
     print(Color.GREEN + "OK" + Color.END)
 
     return CAPs, S

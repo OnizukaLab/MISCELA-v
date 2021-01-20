@@ -21,7 +21,7 @@ h1 {
 
 .select-dataset {
 	margin: 0 auto;
-	width: 483px;
+	width: 120px;
 	background: #fefefe;
 	border: solid 1px #ccc;
 	border-radius: 8px;
@@ -129,6 +129,18 @@ button.start-button:active {
 	background: rgb(21,73,171);
 	color: #fefefe;
 }
+
+
+button.lang_button {
+	display: inline-block;
+	border-style: solid;
+	background-color: lightgray;
+	border-width:1px;
+	border-color: darkgray;
+	color: black;
+	text-decoration: none;
+}
+
 
 
 /* ON/OFFボタン */
