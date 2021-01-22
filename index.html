@@ -4,17 +4,27 @@
     <meta charset="utf-8">
     <meta name="description", content="MISCELA-v">
     <script src="http://code.jquery.com/jquery-2.0.0.js"></script>
-    <link rel="stylesheet" type="text/css" href="css/normalize.css">
-    <link rel="stylesheet" type="text/css" href="css/top.css">
-    <title>時空間データマイニングデモ</title>
+    <link rel="stylesheet" type="text/css" href="./css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="./css/top.css">
+    <title>Spatiotemporal Data Mining Demo</title>
   </head>
   <body>
     <header><h1></h1></header>
     <div class="select-dataset">
-      <input type="radio" name="dataset" id="santander" checked="checked"><label for="santander">Santander</label><input type="radio" name="dataset" id="china6"><label for="china6">China-6</label><input type="radio" name="dataset" id="china32"><label for="china32">China-32</label><input type="radio" name="dataset" id="yourdata"><label for="yourdata">Your dataset</label>
+      <!--
+      <input type="radio" name="dataset" id="santander" checked="checked">
+      <label for="santander">Santander</label>
+      <input type="radio" name="dataset" id="china6">
+      <label for="china6">China-6</label>
+      <input type="radio" name="dataset" id="china32">
+      <label for="china32">China-13</label>
+      -->
+      <input type="radio" name="dataset" id="yourdata">
+      <label for="yourdata">Your dataset</label>
     </div>
 
     <div class="description">
+      <!--
       <section class="santander-desc">
         <p>スペイン・サンタンデル市で収集したデータセットです。温度、光、騒音、交通量、湿度のセンサデータがあります。</p>
       </section>
@@ -24,15 +34,15 @@
       <section class="china32-desc">
         <p>中国で収集したデータセットです。PM2.5、PM10、二酸化硫黄、二酸化窒素、一酸化炭素、オゾン、日照率、降水率、雨量、温度、気圧、湿度、風速のセンサデータがあります。</p>
       </section>
+      -->
       <section id="drop_zone" class="yourdata-desc">
-        <label for="upload_file">データセット名を入力：<input type="text" id="dataset-name"><br><br>ここにファイルをドロップまたはクリックしてファイルを選択<br><small>※data.csv, location.csv, attribute.csv の3つを指定してください。</small><output id="list"></output><br><output id="sending"></output></label>
+        <label for="upload_file"> Input a dataset name：<input type="text" id="dataset-name"><br><br>Drop the file here or click to select a file.<br><small>※data.csv, location.csv, attribute.csv : Please specify these three things. </small><output id="list"></output><br><output id="sending"></output></label>
         <form id="my_form" enctype=multipart/form-data>
             <input type="file" id="upload_file" class="upload_file" name="upload_file" multiple="multiple" accept="text/csv">
         </form>
       </section>
     </div>
-    <button id="start" class="start-button">始める</button>
+    <button id="start" class="start-button">Start</button>
     <script src="src/top.js"></script>
   </body>
 </html>
-
