@@ -25,7 +25,7 @@ This project is a DEMO framework for time-series sensor data mining system, MISC
 
 You can upload our datasets at `Your Dataset` page via a user interface that provides two ways of data upload: drag-and-drop and selecting files from finder. For uploading datasets, we need to prepare three files; data.csv, location.csv, and attribute.csv. data.csv. 
 
-![Sample Image 1](/img/input_data.png)
+![Sample Image 1](/img/upload_dataset.png)
 
 The datasets folder contains the sample datasets. You can check the format of the dataset files and try to run them easily.
 
