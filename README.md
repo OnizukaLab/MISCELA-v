@@ -1,6 +1,6 @@
 # MISCELA_demo
 
-This project is a DEMO framework for time-series sensor data mining system, MISCELA.
+This project builds a DEMO system for spatio-temporal sensor data mining, MISCELA-V.
 
 ## requirements
 
@@ -21,7 +21,7 @@ This project is a DEMO framework for time-series sensor data mining system, MISC
   All native MISCELA programs are under `./backend/miscela_api/api/src/`
   Console outputs are redirected to `./backend/miscela_log.txt`
 
-### 2. open `index.html` in your web-browser. 
+### 2. Open `index.html` in your web-browser. 
 
 You can upload our datasets at `Your Dataset` page via a user interface that provides two ways of data upload: drag-and-drop and selecting files from finder. For uploading datasets, we need to prepare three files; data.csv, location.csv, and attribute.csv. data.csv. 
 
@@ -29,7 +29,7 @@ You can upload our datasets at `Your Dataset` page via a user interface that pro
 
 The datasets folder contains the sample datasets. You can check the format of the dataset files and try to run them easily.
 
-### 3. Run MISCELA with the parameters you set.
+### 3. Set parameters and run MISCELA.
 
 You can run MISCELA by setting parameters Max Attribute, Minimum Support, Evolving rate and Distance and then pushing the `Update` button.
 
