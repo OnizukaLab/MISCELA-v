@@ -103,7 +103,7 @@ button.update-button {
 	padding: 16px 0 0;
 }
 .fold-button button::before {
-	content: '折りたたむ';
+	content: 'CLOSE';
 }
 
 .fold-button button::after {
@@ -193,7 +193,7 @@ button.update-button {
 }
 
 .control-panel.folded .fold-button button::before {
-	content: '展開する';
+	content: 'OPEN';
 }
 
 .control-panel.folded .fold-button button::after {
@@ -223,3 +223,21 @@ button.update-button {
 	transition: transform 0.1s ease-out;
 }
 
+#loading {
+  display: table;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: #fff;
+  opacity: 0.8;
+}
+
+#loading .loadingMsg {
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+  padding-top: 140px;
+  background: url("../img/loading.gif") center center no-repeat;
+}

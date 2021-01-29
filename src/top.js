@@ -62,7 +62,7 @@ function showfilenames() {
 		output.push('<li><strong>', f.name, '</strong> - ', byte2humantext(f.size))
 
 		if(isInAcceptedFile(f.name) == false)
-			output.push('<br><small style="color: red;">指定されたファイル名ではありません</small>');
+			output.push('<br><small style="color: red;">Not the specified file name.</small>');
 		output.push('</li>');
 	}
 	$('#list').html('<ul>' + output.join('') + '</ul>');
@@ -80,7 +80,7 @@ function handleFileSelect(evt) {
 function handleDragOver(evt) {
 	evt.stopPropagation();
 	evt.preventDefault();
-	evt.dataTransfer.dropEffect = 'copy'; 
+	evt.dataTransfer.dropEffect = 'copy';
 }
 
 // イベントリスナーを設定
@@ -96,7 +96,7 @@ function file_upload()
 	localStorage.setItem('dataset', yourdata);
 	localStorage.setItem('yourdata', yourdata);
 
-	$('#sending').html('処理中...');
+	$('#sending').html('Processing...');
 
 	// サーバーのデータを消す
 	const delete_dataset = function(dataset_name) {
@@ -120,7 +120,7 @@ function file_upload()
 			go_to_demopage();
 			return
 		}
-		is_overwrite = window.confirm('データセット' + yourdata + 'は存在します。上書きしてよろしいですか？');
+		is_overwrite = window.confirm('Dataset ' + yourdata + ' is existed. Do you want to overwrite it?');
 		if(!is_overwrite) {
 			$('#sending').html('');
 			return;
@@ -130,7 +130,7 @@ function file_upload()
 
 	if(files.length != 3 || !isInAcceptedFile(files[0].name) || !isInAcceptedFile(files[1].name) || !isInAcceptedFile(files[2].name)) {
 		$('#sending').html('');
-		alert('ファイル数またはファイル名が正しくありません。');
+		alert('The number of files or file name is incorrect.');
 		return;
 	}
 
@@ -175,6 +175,7 @@ function file_upload()
 
 	let sending_num = 0; 					// いま送り中のファイル数
 	let started_all_sendingthread = false;	// すべてのファイル送信の動作は開始した
+	let format_err = true; //フォーマットエラーが起きた場合false
 
 	// ファイルの1行目をチェックして送信
 	const filecheck_and_send = function(file, formdata, checkfirstline) {
@@ -187,13 +188,14 @@ function file_upload()
 				send_formdata(formdata);
 			}
 			else {
-				alert(file.name + 'のフォーマットエラーです。');
-				console.log(file.name + 'のフォーマットエラーです。');
+				alert(file.name + ' is format error');
+				console.log(file.name + ' is format error');
 				delete_dataset(yourdata);
+				return
 			}
 			sending_num--;
-			$('#sending').html('送信中...');
-			if(started_all_sendingthread && sending_num == 0) { // すべてのファイルは送信開始していて、送り中のファイルがゼロだったら
+			$('#sending').html('Sending...');
+			if(started_all_sendingthread && sending_num == 0 && format_err) { // すべてのファイルは送信開始していて、送り中のファイルがゼロだったら
 				go_to_demopage();
 			}
 		});

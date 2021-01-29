@@ -1,11 +1,12 @@
 from django.shortcuts import render
-from django.http import HttpResponse 
+from django.http import HttpResponse
 import argparse
 import pickle
 import csv
 import pdb
 import itertools
 import json
+import random
 from api.src.func import miscela_
 from api.src.func import miscela_sensor
 from api.src.func import loadDataFile
@@ -46,7 +47,7 @@ def _set_params(dataset, maxAtt, minSup, evoRate, distance):
     params["dataset"] = dataset
     params["maxAtt"] = int(maxAtt)
     params["minSup"] = int(minSup)
-    params["evoRate"] = float(evoRate) 
+    params["evoRate"] = float(evoRate)
     params["distance"] = float(distance)
     return params
 
@@ -84,6 +85,7 @@ def miscela(request, dataset, maxAtt, minSup, evoRate, distance):
 
 @csrf_exempt
 def sensor_correlation(request, dataset, maxAtt, minSup, evoRate, distance):
+
     sensor_ids = dict(request.POST)['sensor_ids']
     sensor_attributes = dict(request.POST)['sensor_attributes']
     data_df = loadDataFile(dataset)
@@ -92,23 +94,45 @@ def sensor_correlation(request, dataset, maxAtt, minSup, evoRate, distance):
     if len(cap_caches) == 0:
         raise "cap cache should be in the CapCache. But not found"
 
+    # idから全ての組み合わせを列挙
+    pattern_ids = []
+    for n in range(2, maxAtt+1):
+        for comb in itertools.combinations(sensor_ids, n):
+            pattern_ids.append(list(comb))
+    '''
     cap_cache = None
     for cc in cap_caches:
         cache_sensor_ids = set(cc.sensors.split(','))
         cache_sensor_attributes = set(cc.attributes.split(','))
-        if not (set(sensor_ids) == cache_sensor_ids and set(sensor_attributes) == cache_sensor_attributes):
+        #if not (set(sensor_ids) == cache_sensor_ids and set(sensor_attributes) == cache_sensor_attributes):
+        if not (set(sensor_ids) == cache_sensor_ids):
             continue
         cap_cache = cc
         break
-
     indexes = list(map(lambda i: int(i),cap_cache.indexes.split(',')))
     indexes.sort()
+    '''
+
+    # 全ての組み合わせパターンとCAPで同じ共起の組み合わせがあればindexを取り出して集める
+    indexes = []
+    for cc in cap_caches:
+        for comb_ids in pattern_ids:
+            cache_sensor_ids = set(cc.sensors.split(','))
+            cache_sensor_attributes = set(cc.attributes.split(','))
+            #if not (set(sensor_ids) == cache_sensor_ids and set(sensor_attributes) == cache_sensor_attributes):
+            if set(comb_ids) == cache_sensor_ids:
+                cap_cache = cc
+                indexes.extend(list(map(lambda i:int(i),cap_cache.indexes.split(','))))
+                break
+    indexes = list(set(indexes)) # 重複を無くし、ソートする
+    #indexes.sort()
 
     result = dict()
     result['sensor'] = dict()
     for sensor_id, attribute in zip(sensor_ids, sensor_attributes):
         target_df = data_df.query(f'id == \'{sensor_id}\' and attribute == \'{attribute}\'')
         result['sensor'][sensor_id] = dict()
+        result['sensor'][sensor_id]['attribute'] = attribute
         result['sensor'][sensor_id]['timestamp'] = list(target_df.time)
         result['sensor'][sensor_id]['data'] = list(target_df.data)
     result['indexes'] = indexes
