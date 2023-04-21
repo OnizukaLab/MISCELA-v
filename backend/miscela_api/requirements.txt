@@ -14,5 +14,5 @@ django==2.2.24
 djangorestframework
 django-filter
 django-cors-headers
-sqlparse==0.2.4
+sqlparse==0.4.4
 djongo==1.2.38
